@@ -9,16 +9,10 @@ class Menu extends StatelessWidget {
     return Scaffold(
         body: Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [0.0, 0.5],
-          colors: [
-            Colors.white,
-            Color(0xffA6E0FD),
-          ],
-        ),
-      ),
+          color: Colors.white,
+          image: DecorationImage(
+              image: AssetImage("assets/icons/bg_menu.png"),
+              fit: BoxFit.cover)),
       child: Center(
         child: _menuButtons(),
       ),
@@ -29,7 +23,9 @@ class Menu extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SizedBox(height: 350, child: _gameTitle()),
+        SizedBox(
+          height: 350,
+        ),
         Column(children: [
           SizedBox(height: 20),
           SizedBox(
