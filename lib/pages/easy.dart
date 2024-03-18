@@ -14,10 +14,13 @@ class EasyMode extends StatefulWidget {
 
 class _EasyModeState extends State<EasyMode> {
   late List<Cards> _cards;
+  late List<Cards> _validPairs;
+  late Cards? _tappedCard;
   late Timer _timer;
   late int _counter;
   late int _rows;
   late int _columns;
+  bool _enableTaps = false;
 
   @override
   void initState() {
@@ -26,6 +29,8 @@ class _EasyModeState extends State<EasyMode> {
     _columns = 4;
     _counter = 60;
     _cards = _getRandomCards(_rows * _columns);
+    _tappedCard = null;
+    _validPairs = [];
     _startTimer();
   }
 
@@ -56,6 +61,13 @@ class _EasyModeState extends State<EasyMode> {
     return _shuffleCards(cards);
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_counter > 0) {
@@ -69,7 +81,59 @@ class _EasyModeState extends State<EasyMode> {
   }
 
   void handleCardTap(Cards card) {
-    print('Card tapped: ${card.val}');
+    if (_counter == 0) {
+      return;
+    }
+    if (card.isMatched) {
+      // Do nothing if the card is already matched
+      return;
+    }
+    card.isTapped = true;
+    setState(() {
+      if (_tappedCard == null) {
+        _tappedCard = card;
+      } else {
+        if (_tappedCard!.val == card.val) {
+          // If cards match, mark them as matched and remove them
+          _tappedCard!.isMatched = true;
+          card.isMatched = true;
+          _tappedCard = null;
+          _showMatchedText(); // Show pop-up text for matched cards
+        } else {
+          // If cards don't match, flip them back
+          _enableTaps = false;
+          Timer(const Duration(milliseconds: 500), () {
+            _tappedCard!.isTapped = false;
+            card.isTapped = false;
+            _tappedCard = null;
+            _enableTaps = true;
+          });
+        }
+      }
+    });
+    if (_validPairs.length == _cards.length ~/ 2) {
+      _timer.cancel();
+    }
+  }
+
+  void _showMatchedText() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Matched!'),
+          content: Text('You found a match!'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -80,6 +144,8 @@ class _EasyModeState extends State<EasyMode> {
 
   @override
   Widget build(BuildContext context) {
+    List<Cards> remainingCards =
+        _cards.where((card) => !card.isMatched).toList();
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -111,7 +177,7 @@ class _EasyModeState extends State<EasyMode> {
                   crossAxisCount: _rows == 8 ? 5 : _rows,
                   mainAxisSpacing: _rows == 6 ? 35.0 : 20.0,
                   crossAxisSpacing: _rows == 6 ? 10.0 : 20.0,
-                  children: _cards
+                  children: remainingCards
                       .map((card) =>
                           CardWidget(card: card, onTap: handleCardTap))
                       .toList(),

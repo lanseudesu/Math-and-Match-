@@ -1,5 +1,6 @@
 class Cards {
   final String val;
   bool isTapped;
-  Cards({required this.val, this.isTapped = false});
+  bool isMatched;
+  Cards({required this.val, this.isTapped = false, this.isMatched = false});
 }
