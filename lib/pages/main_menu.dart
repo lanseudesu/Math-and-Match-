@@ -1,9 +1,15 @@
+import 'package:appdev/pages/easy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class Menu extends StatelessWidget {
+class Menu extends StatefulWidget {
   const Menu({super.key});
 
+  @override
+  State<Menu> createState() => _MenuState();
+}
+
+class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +65,12 @@ class Menu extends StatelessWidget {
                     ),
                   ),
                 ),
-                onPressed: () {}),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const EasyMode()));
+                }),
           ),
           SizedBox(height: 10),
           SizedBox(
