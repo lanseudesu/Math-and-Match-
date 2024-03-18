@@ -21,25 +21,32 @@ class _CardWidgetState extends State<CardWidget>
   late AnimationController _controller;
   late Animation<double> _animation;
   AnimationStatus _status = AnimationStatus.dismissed;
+  bool _disposed = false;
+
+  void _listenerFunction() {
+    setState(() {});
+  }
+
+  void _statusListenerFunction(AnimationStatus status) {
+    _status = status;
+    if (_status == AnimationStatus.completed) {
+      Future.delayed(Duration(milliseconds: 800), () {
+        if (!_disposed && _status == AnimationStatus.completed) {
+          _controller.reverse();
+        }
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400))
-          ..addListener(() {
-            setState(() {});
-          })
-          ..addStatusListener((status) {
-            _status = status;
-            if (_status == AnimationStatus.completed) {
-              Future.delayed(Duration(milliseconds: 800), () {
-                if (_status == AnimationStatus.completed) {
-                  _controller.reverse();
-                }
-              });
-            }
-          });
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+    _controller.addListener(_listenerFunction);
+    _controller.addStatusListener(_statusListenerFunction);
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
   }
 
@@ -99,6 +106,9 @@ class _CardWidgetState extends State<CardWidget>
 
   @override
   void dispose() {
+    _disposed = true;
+    _controller.removeListener(_listenerFunction);
+    _controller.removeStatusListener(_statusListenerFunction);
     _controller.dispose();
     super.dispose();
   }

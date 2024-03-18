@@ -103,7 +103,7 @@ class _EasyModeState extends State<EasyMode> {
           // If cards don't match, flip them back
           _enableTaps = false;
           Timer(const Duration(milliseconds: 500), () {
-            _tappedCard!.isTapped = false;
+            _tappedCard?.isTapped = false;
             card.isTapped = false;
             _tappedCard = null;
             _enableTaps = true;
