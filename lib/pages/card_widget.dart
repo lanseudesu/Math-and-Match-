@@ -43,12 +43,6 @@ class _CardWidgetState extends State<CardWidget>
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   bool _isAnimating = false;
 
   @override
@@ -63,13 +57,13 @@ class _CardWidgetState extends State<CardWidget>
             // Start animation if it's not already playing
             _controller.forward();
           }
-          if (widget.onTap != null) {
+          if (widget.onTap != null && mounted) {
             widget.onTap!(widget.card);
           }
         } else {
           // Reverse animation immediately if another card is tapped
           _controller.reverse();
-          if (widget.onTap != null) {
+          if (widget.onTap != null && mounted) {
             widget.onTap!(widget.card);
           }
         }
@@ -101,5 +95,11 @@ class _CardWidgetState extends State<CardWidget>
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
