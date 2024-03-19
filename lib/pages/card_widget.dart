@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:appdev/models/card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CardWidget extends StatefulWidget {
   final Cards card;
@@ -14,6 +15,17 @@ class CardWidget extends StatefulWidget {
 
   @override
   _CardWidgetState createState() => _CardWidgetState();
+}
+
+class CustomIcon extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/icons/card_icon.svg', // Path to your custom icon image
+      width: 50, // Adjust the width of the image as needed
+      height: 50, // Adjust the height of the image as needed
+    );
+  }
 }
 
 class _CardWidgetState extends State<CardWidget>
@@ -96,7 +108,9 @@ class _CardWidgetState extends State<CardWidget>
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
-              child: Text(widget.card.val),
+              child: _animation.value <= 0.5
+                  ? CustomIcon()
+                  : Text(widget.card.val),
             ),
           ),
         ),

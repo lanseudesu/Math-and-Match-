@@ -1,4 +1,5 @@
-import 'package:appdev/pages/easy.dart';
+//import 'package:appdev/pages/easy.dart';
+import 'package:appdev/pages/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -27,13 +28,14 @@ class _MenuState extends State<Menu> {
 
   Column _menuButtons() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(
-          height: 350,
-        ),
         Column(children: [
-          SizedBox(height: 20),
+          Container(
+            width: 300,
+            height: 200,
+            child: Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
+          ),
           SizedBox(
             width: 200,
             height: 80,
@@ -66,10 +68,8 @@ class _MenuState extends State<Menu> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const EasyMode()));
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => const Game()));
                 }),
           ),
           SizedBox(height: 10),
@@ -123,7 +123,7 @@ class _MenuState extends State<Menu> {
                     alignment: Alignment.center,
                     onPressed: () {},
                     icon: SvgPicture.asset(
-                      'assets/icons/trophy-free-material-6-svgrepo-com.svg',
+                      'assets/icons/leaderboard.svg',
                       height: 30,
                       width: 30,
                       color: Colors.white,
@@ -168,78 +168,6 @@ class _MenuState extends State<Menu> {
             ),
           ),
         ]),
-      ],
-    );
-  }
-
-  Stack _gameTitle() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Positioned(
-          bottom: 60,
-          child: Text(
-            'MATH',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 80,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'Archivo Black',
-              letterSpacing: 2.0,
-              foreground: Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 18
-                ..color = Color(0xffFF52A4),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 60,
-          child: Text(
-            'MATH',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 80,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'Archivo Black',
-              letterSpacing: 2.0,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        Positioned(
-          left: 52,
-          bottom: 12,
-          child: Text(
-            'and match',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 50,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'Aero',
-              letterSpacing: 3.0,
-              foreground: Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 13
-                ..color = Color(0xff9C51E8),
-            ),
-          ),
-        ),
-        Positioned(
-          left: 52,
-          bottom: 12,
-          child: Text(
-            'and match',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 50,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'Aero',
-              color: Colors.white,
-              letterSpacing: 3.0,
-            ),
-          ),
-        ),
       ],
     );
   }

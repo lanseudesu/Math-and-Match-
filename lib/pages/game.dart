@@ -5,14 +5,14 @@ import 'package:appdev/pages/card_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-class EasyMode extends StatefulWidget {
-  const EasyMode({Key? key}) : super(key: key);
+class Game extends StatefulWidget {
+  const Game({Key? key}) : super(key: key);
 
   @override
-  State<EasyMode> createState() => _EasyModeState();
+  State<Game> createState() => _EasyModeState();
 }
 
-class _EasyModeState extends State<EasyMode> {
+class _EasyModeState extends State<Game> {
   late List<Cards> _cards;
   late List<Cards> _validPairs;
   late Cards? _tappedCard;
@@ -144,45 +144,61 @@ class _EasyModeState extends State<EasyMode> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final int columns = screenWidth > 600 ? 5 : 4;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           image: DecorationImage(
-            image: AssetImage("assets/icons/easy_bg.png"),
+            image: AssetImage("assets/icons/bg_game.png"),
             fit: BoxFit.cover,
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 190),
+            SizedBox(
+              height: 65,
+            ),
+            Container(
+              width: 230,
+              height: 120,
+              child: Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
+            ),
             Text(
               '${_secondsToMinutes(_counter)}',
               style: TextStyle(
-                  fontFamily: 'Aero',
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontSize: 24),
+                fontFamily: 'Aero',
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+                fontSize: 24,
+              ),
             ),
-            _counter != 0 ? Text('') : Text(''),
-            Container(
-                height: MediaQuery.of(context).size.height - 250,
-                child: GridView.count(
-                  padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  childAspectRatio: _rows == 8 ? 0.6 : 0.7,
-                  crossAxisCount: _rows == 8 ? 5 : _rows,
-                  mainAxisSpacing: _rows == 6 ? 35.0 : 20.0,
-                  crossAxisSpacing: _rows == 6 ? 10.0 : 20.0,
-                  children: _cards.map((card) {
-                    if (card.isMatched) {
-                      return Container();
-                    } else {
-                      return CardWidget(card: card, onTap: handleCardTap);
-                    }
-                  }).toList(),
-                )),
+            Expanded(
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: GridView.count(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    crossAxisCount: columns,
+                    mainAxisSpacing: 20.0,
+                    crossAxisSpacing: 20.0,
+                    childAspectRatio: 0.7,
+                    children: _cards.map((card) {
+                      if (card.isMatched) {
+                        return Container();
+                      } else {
+                        return CardWidget(card: card, onTap: handleCardTap);
+                      }
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
