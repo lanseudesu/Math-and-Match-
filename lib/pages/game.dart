@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
 import 'package:flutter/material.dart';
@@ -9,56 +7,25 @@ class Game extends StatefulWidget {
   const Game({Key? key}) : super(key: key);
 
   @override
-  State<Game> createState() => _EasyModeState();
+  State<Game> createState() => _GameState();
 }
 
-class _EasyModeState extends State<Game> {
+class _GameState extends State<Game> {
   late List<Cards> _cards;
   late List<Cards> _validPairs;
   late Cards? _tappedCard;
   late Timer _timer;
   late int _counter;
-  late int _rows;
-  late int _columns;
   bool _enableTaps = false;
 
   @override
   void initState() {
     super.initState();
-    _rows = 4;
-    _columns = 4;
     _counter = 60;
-    _cards = _getRandomCards(_rows * _columns);
+    _cards = getRandomCards(16);
     _tappedCard = null;
     _validPairs = [];
     _startTimer();
-  }
-
-  List<Cards> _shuffleCards(List<Cards> cards) {
-    Random rng = Random();
-    for (int i = cards.length - 1; i >= 1; --i) {
-      int newIdx = rng.nextInt(i);
-      Cards temp = cards[i];
-      cards[i] = cards[newIdx];
-      cards[newIdx] = temp;
-    }
-    return cards;
-  }
-
-  List<Cards> _getRandomCards(int max) {
-    Random rng = Random();
-    List<String> alpha = [];
-    List<Cards> cards = [];
-    for (int i = 65; i <= 90; ++i) {
-      alpha.add(String.fromCharCode(i));
-    }
-    for (int i = 0; i < max / 2; ++i) {
-      int n = rng.nextInt(alpha.length);
-      cards.add(Cards(val: alpha[n]));
-      cards.add(Cards(val: alpha[n]));
-      alpha.removeAt(n);
-    }
-    return _shuffleCards(cards);
   }
 
   @override
@@ -93,8 +60,8 @@ class _EasyModeState extends State<Game> {
       if (_tappedCard == null) {
         _tappedCard = card;
       } else {
-        if (_tappedCard!.val == card.val) {
-          // If cards match, mark them as matched and remove them
+        if (_tappedCard!.id == card.id) {
+          // If cards match (have the same ID), mark them as matched and remove them
           _tappedCard!.isMatched = true;
           card.isMatched = true;
           _tappedCard = null;

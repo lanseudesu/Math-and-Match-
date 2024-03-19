@@ -67,55 +67,59 @@ class _CardWidgetState extends State<CardWidget>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (!_isAnimating) {
-          if (_status == AnimationStatus.completed) {
-            // Reverse animation if it's already completed
-            _controller.reverse();
+        onTap: () {
+          if (!_isAnimating) {
+            if (_status == AnimationStatus.completed) {
+              // Reverse animation if it's already completed
+              _controller.reverse();
+            } else {
+              // Start animation if it's not already playing
+              _controller.forward();
+            }
+            if (widget.onTap != null && mounted) {
+              widget.onTap!(widget.card);
+            }
           } else {
-            // Start animation if it's not already playing
-            _controller.forward();
+            // Reverse animation immediately if another card is tapped
+            _controller.reverse();
+            if (widget.onTap != null && mounted) {
+              widget.onTap!(widget.card);
+            }
           }
-          if (widget.onTap != null && mounted) {
-            widget.onTap!(widget.card);
-          }
-        } else {
-          // Reverse animation immediately if another card is tapped
-          _controller.reverse();
-          if (widget.onTap != null && mounted) {
-            widget.onTap!(widget.card);
-          }
-        }
-      },
-      child: Container(
-        height: 100, // Adjust the height as needed
-        width: 100, // Adjust the width as needed
-        child: AnimatedBuilder(
-          animation: _animation,
-          builder: (context, child) {
-            print('Animation value: ${_animation.value}');
-            return Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(_animation.value * pi),
-              child: child,
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: _animation.value <= 0.5 ? Color(0xffFFBEF3) : Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: _animation.value <= 0.5
-                  ? CustomIcon()
-                  : Text(widget.card.val),
+        },
+        child: Container(
+          height: 100, // Adjust the height as needed
+          width: 100, // Adjust the width as needed
+          child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              print('Animation value: ${_animation.value}');
+              return Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateY(_animation.value * pi),
+                child: child,
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color:
+                    _animation.value <= 0.5 ? Color(0xffFFBEF3) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: _animation.value <= 0.5
+                    ? CustomIcon()
+                    : Image.asset(
+                        widget.card.imagePaths,
+                        width: 50, // Adjust the width of the image as needed
+                        height: 50,
+                      ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   @override
