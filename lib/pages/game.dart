@@ -1,64 +1,31 @@
-import 'dart:math';
-
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-class EasyMode extends StatefulWidget {
-  const EasyMode({Key? key}) : super(key: key);
+class Game extends StatefulWidget {
+  const Game({Key? key}) : super(key: key);
 
   @override
-  State<EasyMode> createState() => _EasyModeState();
+  State<Game> createState() => _GameState();
 }
 
-class _EasyModeState extends State<EasyMode> {
+class _GameState extends State<Game> {
   late List<Cards> _cards;
   late List<Cards> _validPairs;
   late Cards? _tappedCard;
   late Timer _timer;
   late int _counter;
-  late int _rows;
-  late int _columns;
   bool _enableTaps = false;
 
   @override
   void initState() {
     super.initState();
-    _rows = 4;
-    _columns = 4;
     _counter = 60;
-    _cards = _getRandomCards(_rows * _columns);
+    _cards = getRandomCards(16);
     _tappedCard = null;
     _validPairs = [];
     _startTimer();
-  }
-
-  List<Cards> _shuffleCards(List<Cards> cards) {
-    Random rng = Random();
-    for (int i = cards.length - 1; i >= 1; --i) {
-      int newIdx = rng.nextInt(i);
-      Cards temp = cards[i];
-      cards[i] = cards[newIdx];
-      cards[newIdx] = temp;
-    }
-    return cards;
-  }
-
-  List<Cards> _getRandomCards(int max) {
-    Random rng = Random();
-    List<String> alpha = [];
-    List<Cards> cards = [];
-    for (int i = 65; i <= 90; ++i) {
-      alpha.add(String.fromCharCode(i));
-    }
-    for (int i = 0; i < max / 2; ++i) {
-      int n = rng.nextInt(alpha.length);
-      cards.add(Cards(val: alpha[n]));
-      cards.add(Cards(val: alpha[n]));
-      alpha.removeAt(n);
-    }
-    return _shuffleCards(cards);
   }
 
   @override
@@ -84,7 +51,7 @@ class _EasyModeState extends State<EasyMode> {
     if (_counter == 0) {
       return;
     }
-    if (card.isMatched) {
+    if (card.isMatched || card == _tappedCard) {
       // Do nothing if the card is already matched
       return;
     }
@@ -93,8 +60,8 @@ class _EasyModeState extends State<EasyMode> {
       if (_tappedCard == null) {
         _tappedCard = card;
       } else {
-        if (_tappedCard!.val == card.val) {
-          // If cards match, mark them as matched and remove them
+        if (_tappedCard!.id == card.id) {
+          // If cards match (have the same ID), mark them as matched and remove them
           _tappedCard!.isMatched = true;
           card.isMatched = true;
           _tappedCard = null;
@@ -103,7 +70,7 @@ class _EasyModeState extends State<EasyMode> {
           // If cards don't match, flip them back
           _enableTaps = false;
           Timer(const Duration(milliseconds: 500), () {
-            _tappedCard!.isTapped = false;
+            _tappedCard?.isTapped = false;
             card.isTapped = false;
             _tappedCard = null;
             _enableTaps = true;
@@ -144,44 +111,61 @@ class _EasyModeState extends State<EasyMode> {
 
   @override
   Widget build(BuildContext context) {
-    List<Cards> remainingCards =
-        _cards.where((card) => !card.isMatched).toList();
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final int columns = screenWidth > 600 ? 5 : 4;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           image: DecorationImage(
-            image: AssetImage("assets/icons/easy_bg.png"),
+            image: AssetImage("assets/icons/bg_game.png"),
             fit: BoxFit.cover,
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 190),
+            SizedBox(
+              height: 65,
+            ),
+            Container(
+              width: 230,
+              height: 120,
+              child: Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
+            ),
             Text(
               '${_secondsToMinutes(_counter)}',
               style: TextStyle(
-                  fontFamily: 'Aero',
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontSize: 24),
+                fontFamily: 'Aero',
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+                fontSize: 24,
+              ),
             ),
-            _counter != 0 ? Text('') : Text(''),
-            Container(
-                height: MediaQuery.of(context).size.height - 250,
-                child: GridView.count(
-                  padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  childAspectRatio: _rows == 8 ? 0.6 : 0.7,
-                  crossAxisCount: _rows == 8 ? 5 : _rows,
-                  mainAxisSpacing: _rows == 6 ? 35.0 : 20.0,
-                  crossAxisSpacing: _rows == 6 ? 10.0 : 20.0,
-                  children: remainingCards
-                      .map((card) =>
-                          CardWidget(card: card, onTap: handleCardTap))
-                      .toList(),
-                )),
+            Expanded(
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: GridView.count(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    crossAxisCount: columns,
+                    mainAxisSpacing: 20.0,
+                    crossAxisSpacing: 20.0,
+                    childAspectRatio: 0.7,
+                    children: _cards.map((card) {
+                      if (card.isMatched) {
+                        return Container();
+                      } else {
+                        return CardWidget(card: card, onTap: handleCardTap);
+                      }
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
