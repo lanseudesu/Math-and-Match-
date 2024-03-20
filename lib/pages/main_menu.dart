@@ -1,5 +1,6 @@
 //import 'package:appdev/pages/easy.dart';
-import 'package:appdev/pages/game.dart';
+import 'package:appdev/pages/difficulty.dart';
+import 'package:appdev/pages/leaderboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -24,6 +25,19 @@ class _MenuState extends State<Menu> {
         child: _menuButtons(),
       ),
     ));
+  }
+
+  Future<void> _showDifficultyDialog(BuildContext context) async {
+    final String? difficulty = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return DifficultyPopup();
+      },
+    );
+
+    if (difficulty != null) {
+      print('Selected Difficulty: $difficulty');
+    }
   }
 
   Column _menuButtons() {
@@ -54,12 +68,12 @@ class _MenuState extends State<Menu> {
                       color: Colors.white,
                       shadows: [
                         Shadow(
-                          offset: Offset(-2, -2), // Top left shadow
+                          offset: Offset(-2, -2),
                           color: Color(0xffFF00FF),
                           blurRadius: 0,
                         ),
                         Shadow(
-                          offset: Offset(2, 2), // Bottom right shadow
+                          offset: Offset(2, 2),
                           color: Color(0xff00FFFF),
                           blurRadius: 0,
                         ),
@@ -68,8 +82,9 @@ class _MenuState extends State<Menu> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Game()));
+                  _showDifficultyDialog(context);
+                  // Navigator.pushReplacement(context,
+                  //     MaterialPageRoute(builder: (context) => const Game()));
                 }),
           ),
           SizedBox(height: 10),
@@ -91,12 +106,12 @@ class _MenuState extends State<Menu> {
                       color: Colors.white,
                       shadows: [
                         Shadow(
-                          offset: Offset(-1.5, -1.5), // Top left shadow
+                          offset: Offset(-1.5, -1.5),
                           color: Color(0xffFF00FF),
                           blurRadius: 0,
                         ),
                         Shadow(
-                          offset: Offset(1.5, 1.5), // Bottom right shadow
+                          offset: Offset(1.5, 1.5),
                           color: Color(0xff00FFFF),
                           blurRadius: 0,
                         ),
@@ -121,7 +136,12 @@ class _MenuState extends State<Menu> {
                   ),
                   child: IconButton(
                     alignment: Alignment.center,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Leaderboard()));
+                    },
                     icon: SvgPicture.asset(
                       'assets/icons/leaderboard.svg',
                       height: 30,

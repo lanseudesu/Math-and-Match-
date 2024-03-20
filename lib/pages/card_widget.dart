@@ -21,9 +21,9 @@ class CustomIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/icons/card_icon.svg', // Path to your custom icon image
-      width: 50, // Adjust the width of the image as needed
-      height: 50, // Adjust the height of the image as needed
+      'assets/icons/card_icon.svg',
+      width: 50,
+      height: 50,
     );
   }
 }
@@ -88,8 +88,8 @@ class _CardWidgetState extends State<CardWidget>
           }
         },
         child: Container(
-          height: 100, // Adjust the height as needed
-          width: 100, // Adjust the width as needed
+          height: 100,
+          width: 100,
           child: AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
@@ -113,7 +113,7 @@ class _CardWidgetState extends State<CardWidget>
                     ? CustomIcon()
                     : Image.asset(
                         widget.card.imagePaths,
-                        width: 50, // Adjust the width of the image as needed
+                        width: 50,
                         height: 50,
                       ),
               ),

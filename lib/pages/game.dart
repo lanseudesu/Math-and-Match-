@@ -1,7 +1,11 @@
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
+import 'package:appdev/pages/difficulty.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // For persistent storage
+import 'package:appdev/models/score.dart';
 import 'dart:async';
+import 'dart:convert';
 
 class Game extends StatefulWidget {
   const Game({Key? key}) : super(key: key);
@@ -15,17 +19,27 @@ class _GameState extends State<Game> {
   late List<Cards> _validPairs;
   late Cards? _tappedCard;
   late Timer _timer;
+  late int _rows;
+  late int _cols;
+  late String? _difficulty;
   late int _counter;
+  late int _score;
   bool _enableTaps = false;
 
   @override
   void initState() {
     super.initState();
+    _difficulty = DifficultyInfoPopup(
+      difficulty: '',
+      imagePath: '',
+    ).difficulty;
     _counter = 60;
+    _score = 0;
     _cards = getRandomCards(16);
     _tappedCard = null;
     _validPairs = [];
     _startTimer();
+    print(_difficulty);
   }
 
   @override
@@ -42,9 +56,14 @@ class _GameState extends State<Game> {
           _counter--;
         });
       } else {
-        timer.cancel(); // Cancel the timer when it reaches 0
+        timer.cancel();
+        _endGame(); // Cancel the timer when it reaches 0
       }
     });
+  }
+
+  void _endGame() {
+    _saveScore(); // Save the score
   }
 
   void handleCardTap(Cards card) {
@@ -65,7 +84,8 @@ class _GameState extends State<Game> {
           _tappedCard!.isMatched = true;
           card.isMatched = true;
           _tappedCard = null;
-          _showMatchedText(); // Show pop-up text for matched cards
+          _showMatchedText();
+          _updateScore();
         } else {
           // If cards don't match, flip them back
           _enableTaps = false;
@@ -80,6 +100,8 @@ class _GameState extends State<Game> {
     });
     if (_validPairs.length == _cards.length ~/ 2) {
       _timer.cancel();
+      _score = _counter; // remaining time = score
+      _saveScore();
     }
   }
 
@@ -103,9 +125,57 @@ class _GameState extends State<Game> {
     );
   }
 
+  void _updateScore() {
+    setState(() {
+      _score += _counter;
+    });
+  }
+
+  Future<void> _saveScore() async {
+    String playerName = await _getPlayerName(context);
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? scoresJson = prefs.getStringList('scores');
+    final List<Score> scores = scoresJson != null
+        ? scoresJson.map((json) => Score.fromJson(jsonDecode(json))).toList()
+        : [];
+
+    scores.add(Score(name: playerName, score: _score));
+
+    // Convert list of Score objects to list of JSON strings
+    final updatedScoresJson =
+        scores.map((score) => score.toJsonString()).toList();
+
+    // Save the updated scores list
+    await prefs.setStringList('scores', updatedScoresJson);
+  }
+
+  Future<String> _getPlayerName(BuildContext context) async {
+    TextEditingController controller = TextEditingController();
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Your Name'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: "Your Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(controller.text);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer to prevent memory leaks
+    _timer.cancel();
     super.dispose();
   }
 

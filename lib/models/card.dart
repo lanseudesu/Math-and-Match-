@@ -32,10 +32,8 @@ List<Cards> getRandomCards(int max) {
     'assets/icons/cards/14.png',
     'assets/icons/cards/15.png',
     'assets/icons/cards/16.png',
-    // Add more image paths as needed
   ];
 
-  // Ensure there are enough images for the specified max
   assert(max % 2 == 0 && max ~/ 2 <= imagePaths.length);
 
   List<Cards> cards = [];
