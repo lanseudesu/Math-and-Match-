@@ -1,6 +1,5 @@
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
-import 'package:appdev/pages/difficulty.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent storage
 import 'package:appdev/models/score.dart';
@@ -8,8 +7,8 @@ import 'dart:async';
 import 'dart:convert';
 
 class Game extends StatefulWidget {
-  const Game({Key? key}) : super(key: key);
-
+  final String difficulty;
+  const Game({Key? key, required this.difficulty}) : super(key: key);
   @override
   State<Game> createState() => _GameState();
 }
@@ -20,8 +19,8 @@ class _GameState extends State<Game> {
   late Cards? _tappedCard;
   late Timer _timer;
   late int _rows;
-  late int _cols;
-  late String? _difficulty;
+  late int _columns;
+  late String _difficulty;
   late int _counter;
   late int _score;
   bool _enableTaps = false;
@@ -29,17 +28,25 @@ class _GameState extends State<Game> {
   @override
   void initState() {
     super.initState();
-    _difficulty = DifficultyInfoPopup(
-      difficulty: '',
-      imagePath: '',
-    ).difficulty;
     _counter = 60;
     _score = 0;
-    _cards = getRandomCards(16);
+    _difficulty = widget.difficulty;
+
+    if (_difficulty.contains("Easy")) {
+      _rows = 4;
+      _columns = 4;
+    } else if (_difficulty.contains("Medium")) {
+      _rows = 5;
+      _columns = 4;
+    } else {
+      _rows = 6;
+      _columns = 5;
+    }
+
+    _cards = getRandomCards(_rows * _columns);
     _tappedCard = null;
     _validPairs = [];
     _startTimer();
-    print(_difficulty);
   }
 
   @override
@@ -181,62 +188,64 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final int columns = screenWidth > 600 ? 5 : 4;
-
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          image: DecorationImage(
-            image: AssetImage("assets/icons/bg_game.png"),
-            fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            image: DecorationImage(
+              image: AssetImage("assets/icons/bg_game.png"),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 65,
-            ),
-            Container(
-              width: 230,
-              height: 120,
-              child: Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
-            ),
-            Text(
-              '${_secondsToMinutes(_counter)}',
-              style: TextStyle(
-                fontFamily: 'Aero',
-                fontWeight: FontWeight.w400,
-                color: Colors.black,
-                fontSize: 24,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 65,
               ),
-            ),
-            Expanded(
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: GridView.count(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    crossAxisCount: columns,
-                    mainAxisSpacing: 20.0,
-                    crossAxisSpacing: 20.0,
-                    childAspectRatio: 0.7,
-                    children: _cards.map((card) {
-                      if (card.isMatched) {
-                        return Container();
-                      } else {
-                        return CardWidget(card: card, onTap: handleCardTap);
-                      }
-                    }).toList(),
+              Container(
+                width: 230,
+                height: 120,
+                child:
+                    Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
+              ),
+              Text(
+                '${_secondsToMinutes(_counter)}',
+                style: TextStyle(
+                  fontFamily: 'Aero',
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                  fontSize: 24,
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: GridView.count(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: _columns,
+                      mainAxisSpacing: 20.0,
+                      crossAxisSpacing: 20.0,
+                      childAspectRatio:
+                          MediaQuery.of(context).size.width > 600 ? 0.6 : 0.7,
+                      children: _cards.map((card) {
+                        if (card.isMatched) {
+                          return Container();
+                        } else {
+                          return CardWidget(card: card, onTap: handleCardTap);
+                        }
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -246,5 +255,28 @@ class _GameState extends State<Game> {
     int minutes = (seconds ~/ 60);
     int remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<bool> _onBackPressed() async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Exit Game"),
+              content: Text("Are you sure you want to exit the game?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("No"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("Yes"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 }

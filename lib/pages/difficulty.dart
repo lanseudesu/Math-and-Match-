@@ -223,7 +223,7 @@ class DifficultyInfoPopup extends StatelessWidget {
         ],
         border: Border.all(
           color: Color(0xffFF52A4).withOpacity(1),
-          width: 8,
+          width: 8, // Border width
         ),
       ),
       child: Column(
@@ -241,8 +241,10 @@ class DifficultyInfoPopup extends StatelessWidget {
           const SizedBox(height: 15),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Game()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Game(difficulty: difficulty)));
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xffFF52A4),
@@ -268,13 +270,14 @@ class DifficultyInfoPopup extends StatelessWidget {
   }
 
   String _getDifficultyInfo(String difficulty) {
+    // Add logic to return the information based on the selected difficulty
     switch (difficulty) {
       case 'Easy':
         return 'Simple addition and subtraction equations.\n4x4 grid totaling 16 cards\n5 Minutes timer';
       case 'Medium':
-        return 'Added multiplication, division, and multiple operations. \n4x5 grid totaling 20 cards\n4 minutes timer';
+        return 'Added multiplication, division, and multiple operations. \n5x4 grid totaling 20 cards\n4 minutes timer';
       case 'Hard':
-        return 'Equations include exponentiation and square roots.\n5x6 grid totaling 30 cards\n3 minutes timer';
+        return 'Equations include exponentiation and square roots.\n6x5 grid totaling 30 cards\n3 minutes timer';
       default:
         return '';
     }

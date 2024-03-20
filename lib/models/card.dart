@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class Cards {
   final String imagePaths;
   final int id;
@@ -15,24 +13,8 @@ class Cards {
 }
 
 List<Cards> getRandomCards(int max) {
-  List<String> imagePaths = [
-    'assets/icons/cards/1.png',
-    'assets/icons/cards/2.png',
-    'assets/icons/cards/3.png',
-    'assets/icons/cards/4.png',
-    'assets/icons/cards/5.png',
-    'assets/icons/cards/6.png',
-    'assets/icons/cards/7.png',
-    'assets/icons/cards/8.png',
-    'assets/icons/cards/9.png',
-    'assets/icons/cards/10.png',
-    'assets/icons/cards/11.png',
-    'assets/icons/cards/12.png',
-    'assets/icons/cards/13.png',
-    'assets/icons/cards/14.png',
-    'assets/icons/cards/15.png',
-    'assets/icons/cards/16.png',
-  ];
+  List<String> imagePaths =
+      List.generate(66, (index) => 'assets/icons/cards/${index + 1}.png');
 
   assert(max % 2 == 0 && max ~/ 2 <= imagePaths.length);
 
@@ -47,12 +29,6 @@ List<Cards> getRandomCards(int max) {
 }
 
 List<Cards> _shuffleCards(List<Cards> cards) {
-  Random rng = Random();
-  for (int i = cards.length - 1; i >= 1; --i) {
-    int newIdx = rng.nextInt(i);
-    Cards temp = cards[i];
-    cards[i] = cards[newIdx];
-    cards[newIdx] = temp;
-  }
+  cards.shuffle();
   return cards;
 }
