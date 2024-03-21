@@ -46,7 +46,7 @@ class _GameState extends State<Game> {
       //_counter = 180;
     }
     _counter = 5;
-    _cards = getRandomCards(_rows * _columns);
+    _cards = getRandomCards(4);
     _tappedCard = null;
     _validPairs = [];
     _startTimer();
@@ -73,6 +73,7 @@ class _GameState extends State<Game> {
   }
 
   void _endGame() {
+    _score = _counter; // remaining time = score
     _saveScore(); // Save the score
   }
 
@@ -95,7 +96,6 @@ class _GameState extends State<Game> {
           card.isMatched = true;
           _tappedCard = null;
           _showMatchedText();
-          _updateScore();
         } else {
           // If cards don't match, flip them back
           _enableTaps = false;
@@ -108,10 +108,9 @@ class _GameState extends State<Game> {
         }
       }
     });
-    if (_validPairs.length == _cards.length ~/ 2) {
+    if (_cards.every((card) => card.isMatched)) {
       _timer.cancel();
-      _score = _counter; // remaining time = score
-      _saveScore();
+      _endGame();
     }
   }
 
@@ -135,14 +134,10 @@ class _GameState extends State<Game> {
     );
   }
 
-  void _updateScore() {
-    setState(() {
-      _score += _counter;
-    });
-  }
-
   Future<void> _saveScore() async {
-    int? storeScore = await _showConfirmationDialog();
+    bool timerExpired = _counter == 0;
+
+    int? storeScore = await _showConfirmationDialog(timerExpired: timerExpired);
 
     if (storeScore != null) {
       if (storeScore == 1) {
@@ -164,6 +159,12 @@ class _GameState extends State<Game> {
 
         // Save the updated scores list
         await prefs.setStringList('scores', updatedScoresJson);
+
+        if (playerName == '_') {
+          _saveScore();
+        } else {
+          await _showPlayAgainDialog();
+        }
       } else if (storeScore == 0 || storeScore == 2) {
         bool confirmExit = await _showConfirmationExitDialog();
         if (confirmExit) {
@@ -178,34 +179,37 @@ class _GameState extends State<Game> {
             return;
           }
         } else {
-          await _showConfirmationDialog();
+          _saveScore();
         }
       }
-
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const Menu()));
     }
   }
 
   Future<bool> _showConfirmationExitDialog() async {
     bool? confirmExit = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Are you sure?"),
-          content: Text("You will lose all progress."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true), //yes, continue
-              child: Text("Yes"),
-            ),
-            TextButton(
-              onPressed: () {
-                _showConfirmationDialog();
-              },
-              child: Text("No"),
-            ),
-          ],
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop();
+            return false;
+          },
+          child: AlertDialog(
+            title: Text("Are you sure?"),
+            content: Text("You will lose all progress."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(true), //yes, continue
+                child: Text("Yes"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text("No"),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -213,27 +217,49 @@ class _GameState extends State<Game> {
     return confirmExit ?? false;
   }
 
-  Future<int?> _showConfirmationDialog() async {
+  Future<int?> _showConfirmationDialog({bool timerExpired = false}) async {
+    String title = timerExpired ? 'Game Over!' : 'Congratulations!';
+    String content = timerExpired
+        ? 'Haha loser, you ran out of time! :P'
+        : 'You finished with ${_secondsToMinutes(_score)} time remaining';
+
+    // Define button texts
+    String playAgainText = timerExpired ? 'Try Again' : 'Play Again';
+    String ExitText = timerExpired ? 'Exit' : 'Exit without Saving';
+
+    // Define the list of buttons
+    List<Widget> buttons = [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(0), //play again
+        child: Text(playAgainText),
+      ),
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(2), //save
+        child: Text(ExitText),
+      ),
+    ];
+
+    // Add the "Exit Without Saving" button if the timer hasn't expired
+    if (!timerExpired) {
+      buttons.add(
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(1), //exit
+          child: Text("Save Score"),
+        ),
+      );
+    }
+
     return await showDialog<int?>(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Game Over"),
-          content: Text("What would you like to do?"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(0), //play again
-              child: Text("Play Again"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(1), //save
-              child: Text("Save Score"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(2), //exit
-              child: Text("Exit Without Saving"),
-            ),
-          ],
+        return WillPopScope(
+          onWillPop: _onBackPressed,
+          child: AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: buttons,
+          ),
         );
       },
     );
@@ -243,21 +269,69 @@ class _GameState extends State<Game> {
     TextEditingController controller = TextEditingController();
     return await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Enter Your Name'),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(hintText: "Your Name"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(controller.text);
-              },
-              child: Text('OK'),
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop();
+            return false;
+          },
+          child: AlertDialog(
+            title: Text('Enter Your Name'),
+            content: TextField(
+              controller: controller,
+              decoration: InputDecoration(hintText: "Your Name"),
             ),
-          ],
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(controller.text);
+                },
+                child: Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .pop('_'); // Go back to the confirmation dialog
+                },
+                child: Text('Cancel'),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showPlayAgainDialog() async {
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop();
+            return false;
+          },
+          child: AlertDialog(
+            title: Text("Do you want to play again?"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => const Menu()));
+                },
+                child: Text("No"),
+              ),
+              TextButton(
+                onPressed: () {
+                  _restartGame();
+                  Navigator.of(context).pop();
+                },
+                child: Text("Yes"),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -370,7 +444,13 @@ class _GameState extends State<Game> {
                   child: Text("No"),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () {
+                    // Navigate to the main menu
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => Menu()),
+                    );
+                  },
                   child: Text("Yes"),
                 ),
               ],
