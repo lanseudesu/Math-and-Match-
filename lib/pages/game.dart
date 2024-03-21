@@ -1,5 +1,6 @@
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
+import 'package:appdev/pages/main_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent storage
 import 'package:appdev/models/score.dart';
@@ -28,21 +29,23 @@ class _GameState extends State<Game> {
   @override
   void initState() {
     super.initState();
-    _counter = 60;
     _score = 0;
     _difficulty = widget.difficulty;
 
     if (_difficulty.contains("Easy")) {
       _rows = 4;
       _columns = 4;
+      //_counter = 300;
     } else if (_difficulty.contains("Medium")) {
       _rows = 5;
       _columns = 4;
+      //_counter = 240;
     } else {
       _rows = 6;
       _columns = 5;
+      //_counter = 180;
     }
-
+    _counter = 5;
     _cards = getRandomCards(_rows * _columns);
     _tappedCard = null;
     _validPairs = [];
@@ -139,21 +142,101 @@ class _GameState extends State<Game> {
   }
 
   Future<void> _saveScore() async {
-    String playerName = await _getPlayerName(context);
-    final prefs = await SharedPreferences.getInstance();
-    final List<String>? scoresJson = prefs.getStringList('scores');
-    final List<Score> scores = scoresJson != null
-        ? scoresJson.map((json) => Score.fromJson(jsonDecode(json))).toList()
-        : [];
+    int? storeScore = await _showConfirmationDialog();
 
-    scores.add(Score(name: playerName, score: _score));
+    if (storeScore != null) {
+      if (storeScore == 1) {
+        // Save score
+        String playerName = await _getPlayerName(context);
+        final prefs = await SharedPreferences.getInstance();
+        final List<String>? scoresJson = prefs.getStringList('scores');
+        final List<Score> scores = scoresJson != null
+            ? scoresJson
+                .map((json) => Score.fromJson(jsonDecode(json)))
+                .toList()
+            : [];
 
-    // Convert list of Score objects to list of JSON strings
-    final updatedScoresJson =
-        scores.map((score) => score.toJsonString()).toList();
+        scores.add(Score(name: playerName, score: _score));
 
-    // Save the updated scores list
-    await prefs.setStringList('scores', updatedScoresJson);
+        // Convert list of Score objects to list of JSON strings
+        final updatedScoresJson =
+            scores.map((score) => score.toJsonString()).toList();
+
+        // Save the updated scores list
+        await prefs.setStringList('scores', updatedScoresJson);
+      } else if (storeScore == 0 || storeScore == 2) {
+        bool confirmExit = await _showConfirmationExitDialog();
+        if (confirmExit) {
+          if (storeScore == 0) {
+            //play again
+            _restartGame();
+            return;
+          } else if (storeScore == 2) {
+            //exit
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const Menu()));
+            return;
+          }
+        } else {
+          await _showConfirmationDialog();
+        }
+      }
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const Menu()));
+    }
+  }
+
+  Future<bool> _showConfirmationExitDialog() async {
+    bool? confirmExit = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Are you sure?"),
+          content: Text("You will lose all progress."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true), //yes, continue
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                _showConfirmationDialog();
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+
+    return confirmExit ?? false;
+  }
+
+  Future<int?> _showConfirmationDialog() async {
+    return await showDialog<int?>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Game Over"),
+          content: Text("What would you like to do?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(0), //play again
+              child: Text("Play Again"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(1), //save
+              child: Text("Save Score"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(2), //exit
+              child: Text("Exit Without Saving"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<String> _getPlayerName(BuildContext context) async {
@@ -178,6 +261,23 @@ class _GameState extends State<Game> {
         );
       },
     );
+  }
+
+  void _restartGame() {
+    setState(() {
+      if (_difficulty.contains("Easy")) {
+        _counter = 300;
+      } else if (_difficulty.contains("Medium")) {
+        _counter = 240;
+      } else {
+        _counter = 180;
+      }
+      _score = 0;
+      _cards = getRandomCards(_rows * _columns);
+      _tappedCard = null;
+      _validPairs = [];
+      _startTimer();
+    });
   }
 
   @override
