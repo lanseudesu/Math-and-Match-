@@ -1,7 +1,9 @@
+import 'package:appdev/main.dart';
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
 import 'package:appdev/pages/main_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For persistent storage
 import 'package:appdev/models/score.dart';
 import 'dart:async';
@@ -16,7 +18,6 @@ class Game extends StatefulWidget {
 
 class _GameState extends State<Game> {
   late List<Cards> _cards;
-  late List<Cards> _validPairs;
   late Cards? _tappedCard;
   late Timer _timer;
   late int _rows;
@@ -48,7 +49,6 @@ class _GameState extends State<Game> {
     _counter = 5;
     _cards = getRandomCards(4);
     _tappedCard = null;
-    _validPairs = [];
     _startTimer();
   }
 
@@ -141,17 +141,19 @@ class _GameState extends State<Game> {
 
     if (storeScore != null) {
       if (storeScore == 1) {
-        // Save score
-        String playerName = await _getPlayerName(context);
+        String loggedInUser =
+            Provider.of<UserState>(context, listen: false).loggedInUser ?? '';
+
         final prefs = await SharedPreferences.getInstance();
-        final List<String>? scoresJson = prefs.getStringList('scores');
+        final List<String>? scoresJson =
+            prefs.getStringList('scores_$loggedInUser');
         final List<Score> scores = scoresJson != null
             ? scoresJson
                 .map((json) => Score.fromJson(jsonDecode(json)))
                 .toList()
             : [];
 
-        scores.add(Score(name: playerName, score: _score));
+        scores.add(Score(name: loggedInUser, score: _score));
 
         // Convert list of Score objects to list of JSON strings
         final updatedScoresJson =
@@ -160,11 +162,7 @@ class _GameState extends State<Game> {
         // Save the updated scores list
         await prefs.setStringList('scores', updatedScoresJson);
 
-        if (playerName == '_') {
-          _saveScore();
-        } else {
-          await _showPlayAgainDialog();
-        }
+        await _showPlayAgainDialog();
       } else if (storeScore == 0 || storeScore == 2) {
         bool confirmExit = await _showConfirmationExitDialog();
         if (confirmExit) {
@@ -234,7 +232,7 @@ class _GameState extends State<Game> {
         child: Text(playAgainText),
       ),
       TextButton(
-        onPressed: () => Navigator.of(context).pop(2), //save
+        onPressed: () => Navigator.of(context).pop(2), //exit
         child: Text(ExitText),
       ),
     ];
@@ -243,7 +241,7 @@ class _GameState extends State<Game> {
     if (!timerExpired) {
       buttons.add(
         TextButton(
-          onPressed: () => Navigator.of(context).pop(1), //exit
+          onPressed: () => Navigator.of(context).pop(1), //save
           child: Text("Save Score"),
         ),
       );
@@ -349,7 +347,6 @@ class _GameState extends State<Game> {
       _score = 0;
       _cards = getRandomCards(_rows * _columns);
       _tappedCard = null;
-      _validPairs = [];
       _startTimer();
     });
   }
