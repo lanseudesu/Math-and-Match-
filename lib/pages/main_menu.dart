@@ -1,4 +1,7 @@
 import 'package:appdev/models/players.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appdev/pages/difficulty.dart';
@@ -38,46 +41,79 @@ class _MenuState extends State<Menu> {
                 image: AssetImage("assets/icons/bg_menu.png"),
                 fit: BoxFit.cover)),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Expanded(
-            child: Center(
-              child: _menuButtons(),
-            ),
-          ),
-          if (loggedInUser != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Logged in as: $loggedInUser',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
+          _menuButtons(),
+          SizedBox(height: 5),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: () {
                   _showSignUpDialog(context);
                 },
-                child: Text('Sign Up'),
-              ),
-              if (loggedInUser != null)
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      Provider.of<UserState>(context, listen: false)
-                          .setLoggedInUser(null); // Log out the current user
-                    });
-                  },
-                  child: Text('Log Out'),
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    backgroundColor: Color(0xffFF52A4)),
+                child: Text(
+                  'Sign Up',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
+              ),
+              SizedBox(
+                width: 8,
+              ),
               ElevatedButton(
                 onPressed: () {
                   _showLoginDialog(context);
                 },
-                child: Text('Login'),
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    backgroundColor: Color(0xffFF52A4)),
+                child: Text(
+                  'Login',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
               ),
             ],
           ),
+          SizedBox(height: 5),
+          if (loggedInUser != null)
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  Provider.of<UserState>(context, listen: false)
+                      .setLoggedInUser(null); // Log out the current user
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                backgroundColor: Color(0xffFF52A4),
+                fixedSize:
+                    Size(197, 40), // Fixed width and height of the button
+                padding: EdgeInsets.all(2), // Padding to center the text
+              ),
+              child: Text(
+                'Logged in as: "$loggedInUser" | click to Log Out',
+                textAlign:
+                    TextAlign.center, // Center align the text both horizontally
+                style: TextStyle(
+                  fontSize: 10, // Font size
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
         ]),
       );
     }));
@@ -351,7 +387,9 @@ class _MenuState extends State<Menu> {
                     ),
                   ),
                 ),
-                onPressed: () {}),
+                onPressed: () {
+                  showHowToPlayDialog(context);
+                }),
           ),
           SizedBox(height: 10),
           SizedBox(
@@ -372,7 +410,7 @@ class _MenuState extends State<Menu> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Leaderboard()));
+                              builder: (context) => Leaderboard()));
                     },
                     icon: SvgPicture.asset(
                       'assets/icons/leaderboard.svg',
@@ -424,6 +462,93 @@ class _MenuState extends State<Menu> {
           ),
         ]),
       ],
+    );
+  }
+
+  void showHowToPlayDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Stack(
+            children: [
+              _howToPlay(context),
+              Positioned(
+                top: 1,
+                left: 1,
+                height: 33,
+                width: 33,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
+                    shape: const CircleBorder(),
+                    backgroundColor: Color(0xffFFBEF3),
+                    side: const BorderSide(color: Colors.transparent),
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/icons/cross.svg',
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Container _howToPlay(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      margin: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xff9C51E8).withOpacity(1),
+            spreadRadius: 0,
+            blurRadius: 0,
+            offset: Offset(8, 8),
+          ),
+        ],
+        border: Border.all(
+          color: Color(0xffFFBEF3).withOpacity(1),
+          width: 8, // Border width
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 7),
+          Image.asset('assets/icons/how_to_play.png', width: 280),
+          const SizedBox(height: 17),
+          Text(
+            'Match pairs of cards with equations sharing the same answer. Tap two cards to reveal their equations. If they match, they are removed. if not, they flip back. Keep matching until all pairs are found.',
+            textAlign: TextAlign.justify,
+            style: GoogleFonts.dmSans(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Color(0xffFF52A4)),
+          ),
+          const SizedBox(height: 10),
+          Image.asset('assets/icons/htpexample.png', width: 180),
+          const SizedBox(height: 10),
+          Text(
+            'Complete the game quickly before time runs out. Compete and aim for the leaderboard with your fastest times. Good luck and enjoy!',
+            textAlign: TextAlign.justify,
+            style: GoogleFonts.dmSans(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Color(0xffFF52A4)),
+          )
+        ],
+      ),
     );
   }
 }

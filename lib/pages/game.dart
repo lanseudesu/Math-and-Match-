@@ -34,18 +34,19 @@ class _GameState extends State<Game> {
     if (_difficulty.contains("Easy")) {
       _rows = 4;
       _columns = 4;
-      //_counter = 300;
+      _counter = 300;
     } else if (_difficulty.contains("Medium")) {
       _rows = 5;
       _columns = 4;
-      //_counter = 240;
+      _counter = 240;
     } else {
       _rows = 6;
       _columns = 5;
-      //_counter = 180;
+      _counter = 180;
     }
-    _counter = 8;
-    _cards = getRandomCards(4);
+    //_counter = 8;
+    //_cards = getRandomCards(4);
+    _cards = getRandomCards(_rows * _columns);
     _tappedCard = null;
     _startTimer();
   }
@@ -113,31 +114,31 @@ class _GameState extends State<Game> {
   }
 
   void _showMatchedText() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Matched!'),
-          content: Text('You found a match!'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('You found a match!'),
+        duration: Duration(seconds: 2), // Adjust duration as needed
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {
+            // Handle action press if needed
+          },
+        ),
+      ),
     );
   }
 
   Future<void> _saveScore(String difficulty) async {
     bool timerExpired = _counter == 0;
+
     int? storeScore = await _showConfirmationDialog(timerExpired: timerExpired);
 
     if (storeScore != null) {
       if (storeScore == 1) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Menu()),
+        );
         String loggedInUser =
             Provider.of<UserState>(context, listen: false).loggedInUser ?? '';
 
@@ -160,7 +161,7 @@ class _GameState extends State<Game> {
             int? easyScore = player.easyScore;
             int? mediumScore = player.mediumScore;
             int? hardScore = player.hardScore;
-
+            print('Score: $_score, Easy Score: $easyScore');
             if (_score >= easyScore) {
               await Player.addUserData(
                   loggedInUser, _score, mediumScore, hardScore);
@@ -233,7 +234,6 @@ class _GameState extends State<Game> {
             print('Error: $e');
           }
         }
-        await _showPlayAgainDialog();
       } else if (storeScore == 0 || storeScore == 2) {
         bool confirmExit = await _showConfirmationExitDialog();
         if (confirmExit) {
@@ -308,7 +308,7 @@ class _GameState extends State<Game> {
       ),
     ];
 
-    // Add the "Exit Without Saving" button if the timer hasn't expired
+    // Add the "Save Score" button if the timer hasn't expired
     if (!timerExpired) {
       buttons.add(
         TextButton(
@@ -328,78 +328,6 @@ class _GameState extends State<Game> {
             title: Text(title),
             content: Text(content),
             actions: buttons,
-          ),
-        );
-      },
-    );
-  }
-
-  Future<String> _getPlayerName(BuildContext context) async {
-    TextEditingController controller = TextEditingController();
-    return await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            Navigator.of(context).pop();
-            return false;
-          },
-          child: AlertDialog(
-            title: Text('Enter Your Name'),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(hintText: "Your Name"),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(controller.text);
-                },
-                child: Text('OK'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop('_'); // Go back to the confirmation dialog
-                },
-                child: Text('Cancel'),
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showPlayAgainDialog() async {
-    return await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            Navigator.of(context).pop();
-            return false;
-          },
-          child: AlertDialog(
-            title: Text("Do you want to play again?"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Menu()));
-                },
-                child: Text("No"),
-              ),
-              TextButton(
-                onPressed: () {
-                  _restartGame();
-                  Navigator.of(context).pop();
-                },
-                child: Text("Yes"),
-              ),
-            ],
           ),
         );
       },

@@ -25,7 +25,7 @@ class Player {
 
   static Future<List<Player>> fetchData() async {
     final Uri uri = Uri.parse(
-        'https://script.google.com/macros/s/AKfycbwBDyueF4yTjojU7iLq1NIdBBNtoDPIrh1QDmfzzjG3_BNf7MdMPl-2zmZi9h__pLRd8Q/exec');
+        'https://script.google.com/macros/s/AKfycby4o7tzoVTP1FDQUPq8GJEQQFTfFGsGn3UQEEZttDxDeCV0lupWYKQZvis7UKswh-Q7nA/exec');
     try {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
@@ -43,7 +43,7 @@ class Player {
   static Future<void> addUserData(
       String username, int easyScore, int mediumScore, int hardScore) async {
     final Uri uri = Uri.parse(
-        'https://script.google.com/macros/s/AKfycbwBDyueF4yTjojU7iLq1NIdBBNtoDPIrh1QDmfzzjG3_BNf7MdMPl-2zmZi9h__pLRd8Q/exec');
+        'https://script.google.com/macros/s/AKfycby4o7tzoVTP1FDQUPq8GJEQQFTfFGsGn3UQEEZttDxDeCV0lupWYKQZvis7UKswh-Q7nA/exec');
     final Map<String, dynamic> data = {
       'Username': username,
       'Easy': easyScore.toString(),
