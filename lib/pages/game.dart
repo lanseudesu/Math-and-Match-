@@ -4,10 +4,8 @@ import 'package:appdev/pages/card_widget.dart';
 import 'package:appdev/pages/main_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // For persistent storage
-import 'package:appdev/models/score.dart';
+import 'package:appdev/models/players.dart';
 import 'dart:async';
-import 'dart:convert';
 
 class Game extends StatefulWidget {
   final String difficulty;
@@ -46,7 +44,7 @@ class _GameState extends State<Game> {
       _columns = 5;
       //_counter = 180;
     }
-    _counter = 5;
+    _counter = 8;
     _cards = getRandomCards(4);
     _tappedCard = null;
     _startTimer();
@@ -74,7 +72,7 @@ class _GameState extends State<Game> {
 
   void _endGame() {
     _score = _counter; // remaining time = score
-    _saveScore(); // Save the score
+    _saveScore(_difficulty); // Save the score
   }
 
   void handleCardTap(Cards card) {
@@ -134,9 +132,8 @@ class _GameState extends State<Game> {
     );
   }
 
-  Future<void> _saveScore() async {
+  Future<void> _saveScore(String difficulty) async {
     bool timerExpired = _counter == 0;
-
     int? storeScore = await _showConfirmationDialog(timerExpired: timerExpired);
 
     if (storeScore != null) {
@@ -144,24 +141,98 @@ class _GameState extends State<Game> {
         String loggedInUser =
             Provider.of<UserState>(context, listen: false).loggedInUser ?? '';
 
-        final prefs = await SharedPreferences.getInstance();
-        final List<String>? scoresJson =
-            prefs.getStringList('scores_$loggedInUser');
-        final List<Score> scores = scoresJson != null
-            ? scoresJson
-                .map((json) => Score.fromJson(jsonDecode(json)))
-                .toList()
-            : [];
+        //add code to input score
+        if (difficulty == 'Easy') {
+          try {
+            // Fetch player data from server
+            List<Player> players = await Player.fetchData();
 
-        scores.add(Score(name: loggedInUser, score: _score));
+            // Find the player with the username
+            Player? player = players.firstWhere(
+              (player) => player.username == loggedInUser,
+              orElse: () => Player(
+                  username: loggedInUser,
+                  easyScore: 0,
+                  mediumScore: 0,
+                  hardScore: 0),
+            );
 
-        // Convert list of Score objects to list of JSON strings
-        final updatedScoresJson =
-            scores.map((score) => score.toJsonString()).toList();
+            int? easyScore = player.easyScore;
+            int? mediumScore = player.mediumScore;
+            int? hardScore = player.hardScore;
 
-        // Save the updated scores list
-        await prefs.setStringList('scores', updatedScoresJson);
+            if (_score >= easyScore) {
+              await Player.addUserData(
+                  loggedInUser, _score, mediumScore, hardScore);
+            } else {
+              // Show a dialog indicating the current score is lower than the high score
+              // You can implement this
+            }
+          } catch (e) {
+            // Handle errors
+            print('Error: $e');
+          }
+        } else if (difficulty == 'Medium') {
+          try {
+            // Fetch player data from server
+            List<Player> players = await Player.fetchData();
 
+            // Find the player with the username
+            Player? player = players.firstWhere(
+              (player) => player.username == loggedInUser,
+              orElse: () => Player(
+                  username: loggedInUser,
+                  easyScore: 0,
+                  mediumScore: 0,
+                  hardScore: 0),
+            );
+
+            int? easyScore = player.easyScore;
+            int? mediumScore = player.mediumScore;
+            int? hardScore = player.hardScore;
+
+            if (_score >= mediumScore) {
+              await Player.addUserData(
+                  loggedInUser, easyScore, _score, hardScore);
+            } else {
+              // Show a dialog indicating the current score is lower than the high score
+              // You can implement this
+            }
+          } catch (e) {
+            // Handle errors
+            print('Error: $e');
+          }
+        } else if (difficulty == 'Hard') {
+          try {
+            // Fetch player data from server
+            List<Player> players = await Player.fetchData();
+
+            // Find the player with the username
+            Player? player = players.firstWhere(
+              (player) => player.username == loggedInUser,
+              orElse: () => Player(
+                  username: loggedInUser,
+                  easyScore: 0,
+                  mediumScore: 0,
+                  hardScore: 0),
+            );
+
+            int? easyScore = player.easyScore;
+            int? mediumScore = player.mediumScore;
+            int? hardScore = player.hardScore;
+
+            if (_score >= mediumScore) {
+              await Player.addUserData(
+                  loggedInUser, easyScore, mediumScore, _score);
+            } else {
+              // Show a dialog indicating the current score is lower than the high score
+              // You can implement this
+            }
+          } catch (e) {
+            // Handle errors
+            print('Error: $e');
+          }
+        }
         await _showPlayAgainDialog();
       } else if (storeScore == 0 || storeScore == 2) {
         bool confirmExit = await _showConfirmationExitDialog();
@@ -177,7 +248,7 @@ class _GameState extends State<Game> {
             return;
           }
         } else {
-          _saveScore();
+          _saveScore(difficulty);
         }
       }
     }

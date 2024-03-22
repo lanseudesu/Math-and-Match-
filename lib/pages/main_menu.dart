@@ -1,3 +1,4 @@
+import 'package:appdev/models/players.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appdev/pages/difficulty.dart';
@@ -14,6 +15,18 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeSharedPreferences();
+  }
+
+  Future<void> initializeSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: Consumer<UserState>(builder: (context, userState, _) {
@@ -128,6 +141,7 @@ class _MenuState extends State<Menu> {
                   // new acc
                   await prefs.setString(
                       usernameController.text, passwordController.text);
+                  Player.addUserData(usernameController.text, 0, 0, 0);
                   Provider.of<UserState>(context, listen: false)
                       .setLoggedInUser(usernameController.text);
                   Navigator.pop(context); // Close dialog
@@ -393,7 +407,10 @@ class _MenuState extends State<Menu> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      prefs.clear();
+                      print('SharedPreferences cleared');
+                    },
                     icon: SvgPicture.asset(
                       'assets/icons/exit.svg',
                       height: 30,
