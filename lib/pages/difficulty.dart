@@ -39,7 +39,7 @@ class DifficultyPopup extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Color(0xff9C51E8).withOpacity(1), // Shadow color
+            color: Color(0xff9C51E8), // Shadow color
             spreadRadius: 0, // Spread radius
             blurRadius: 0, // Blur radius
             offset: Offset(8, 8), // Custom offset (horizontal, vertical)
@@ -53,7 +53,34 @@ class DifficultyPopup extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/icons/choose-difficulty.png', width: 300),
+          Stack(children: [
+            Text('CHOOSE\nDIFFICULTY',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Catfiles',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 30,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(6, 6),
+                      color: Color(0xffFFBEF3),
+                      blurRadius: 0,
+                    ),
+                  ],
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 7
+                    ..color = Color(0xffFF52A4),
+                )),
+            Text('CHOOSE\nDIFFICULTY',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Catfiles',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 30,
+                  color: Colors.white,
+                )),
+          ]),
           const SizedBox(height: 7),
           Text(
             'Make sure you have read the "how to play" section.',
@@ -61,7 +88,7 @@ class DifficultyPopup extends StatelessWidget {
             style: GoogleFonts.dmSans(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Color(0xffFF52A4),
             ),
           ),
           const SizedBox(height: 15),
@@ -84,13 +111,13 @@ class DifficultyPopup extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 5,
+                elevation: 3,
               ),
               child: Text(
                 'EASY',
                 style: TextStyle(
-                  fontFamily: 'Aero',
-                  color: Colors.black,
+                  fontFamily: 'Catfiles',
+                  color: Colors.white,
                   fontSize: 25,
                   fontWeight: FontWeight.w500,
                 ),
@@ -113,18 +140,18 @@ class DifficultyPopup extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xffFFBEF3),
+                backgroundColor: Color(0xffA673DE),
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 5,
+                elevation: 3,
               ),
               child: Text(
                 'MEDIUM',
                 style: TextStyle(
-                  fontFamily: 'Aero',
-                  color: Colors.black,
+                  fontFamily: 'Catfiles',
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
@@ -146,18 +173,18 @@ class DifficultyPopup extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xffFFBEF3),
+                backgroundColor: Color(0xffFF52A4),
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 5,
+                elevation: 3,
               ),
               child: Text(
                 'HARD',
                 style: TextStyle(
-                  fontFamily: 'Aero',
-                  color: Colors.black,
+                  fontFamily: 'Catfiles',
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
@@ -230,7 +257,34 @@ class DifficultyInfoPopup extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 7),
-          Image.asset(imagePath, width: 150),
+          Stack(children: [
+            Text(difficulty,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Catfiles',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 40,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(5.5, 5.5),
+                      color: Color.fromARGB(255, 194, 144, 248),
+                      blurRadius: 0,
+                    ),
+                  ],
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 7
+                    ..color = Color(0xffFF52A4),
+                )),
+            Text(difficulty,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Catfiles',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 40,
+                  color: Color(0xffFFBEF3),
+                )),
+          ]),
           const SizedBox(height: 15),
           Text(
             _getDifficultyInfo(difficulty),
@@ -253,14 +307,14 @@ class DifficultyInfoPopup extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 6),
+                elevation: 3),
             child: Text(
               'Continue',
               style: TextStyle(
-                fontFamily: 'Aero',
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontFamily: 'Catfiles',
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

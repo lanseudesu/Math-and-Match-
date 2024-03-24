@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:appdev/models/audio.dart';
 import 'package:appdev/models/card.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -75,6 +77,7 @@ class _CardWidgetState extends State<CardWidget>
             } else {
               // Start animation if it's not already playing
               _controller.forward();
+              FlameAudio.play('flip.mp3', volume: AudioUtil.soundVolume * 13);
             }
             if (widget.onTap != null && mounted) {
               widget.onTap!(widget.card);
@@ -105,7 +108,7 @@ class _CardWidgetState extends State<CardWidget>
             child: Container(
               decoration: BoxDecoration(
                 color:
-                    _animation.value <= 0.5 ? Color(0xffFFBEF3) : Colors.white,
+                    _animation.value <= 0.5 ? Color(0xffA673DE) : Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(

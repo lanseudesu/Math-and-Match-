@@ -1,7 +1,9 @@
 import 'package:appdev/main.dart';
+import 'package:appdev/models/audio.dart';
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
 import 'package:appdev/pages/main_menu.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:appdev/models/players.dart';
@@ -9,7 +11,11 @@ import 'dart:async';
 
 class Game extends StatefulWidget {
   final String difficulty;
-  const Game({Key? key, required this.difficulty}) : super(key: key);
+  final List<Player>? users;
+
+  const Game({Key? key, this.users, required this.difficulty})
+      : super(key: key);
+
   @override
   State<Game> createState() => _GameState();
 }
@@ -24,29 +30,37 @@ class _GameState extends State<Game> {
   late int _counter;
   late int _score;
   bool _enableTaps = false;
+  late String _loggedInUser;
+  bool _isMounted = false;
+  List<Player> users = [];
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
+    _loadUsers();
     _score = 0;
     _difficulty = widget.difficulty;
+    _loggedInUser =
+        Provider.of<UserState>(context, listen: false).loggedInUser ??
+            ''; //get loggedin user
 
     if (_difficulty.contains("Easy")) {
       _rows = 4;
       _columns = 4;
       _counter = 300;
+      _cards = getRandomCards(_rows * _columns, end: 16);
     } else if (_difficulty.contains("Medium")) {
       _rows = 5;
       _columns = 4;
       _counter = 240;
-    } else {
+      _cards = getRandomCards(_rows * _columns, start: 16, end: 36);
+    } else if (_difficulty.contains("Hard")) {
       _rows = 6;
       _columns = 5;
       _counter = 180;
+      _cards = getRandomCards(_rows * _columns, start: 36, end: 66);
     }
-    //_counter = 8;
-    //_cards = getRandomCards(4);
-    _cards = getRandomCards(_rows * _columns);
     _tappedCard = null;
     _startTimer();
   }
@@ -58,22 +72,89 @@ class _GameState extends State<Game> {
     }
   }
 
+  //fetch data from db
+  void _loadUsers() {
+    Player.fetchData().then((data) {
+      if (_isMounted) {
+        setState(() {
+          users = data;
+        });
+      }
+    });
+  }
+
+  List<Player> getLoggedInUserScores() {
+    return getUniqueUsersWithHighestScores(_loggedInUser);
+  }
+
+  //get scores of logged in user
+  List<Player> getUniqueUsersWithHighestScores(String loggedInUsername) {
+    Map<String, Player> uniqueUsers = {};
+
+    for (Player user in users) {
+      if (!uniqueUsers.containsKey(user.username)) {
+        uniqueUsers[user.username] = user;
+      } else {
+        Player existingUser = uniqueUsers[user.username]!;
+        if (user.easyScore > existingUser.easyScore) {
+          uniqueUsers[user.username] = Player(
+            username: user.username,
+            easyScore: user.easyScore,
+            mediumScore: existingUser.mediumScore,
+            hardScore: existingUser.hardScore,
+          );
+        }
+        if (user.mediumScore > existingUser.mediumScore) {
+          uniqueUsers[user.username] = Player(
+            username: user.username,
+            easyScore: existingUser.easyScore,
+            mediumScore: user.mediumScore,
+            hardScore: existingUser.hardScore,
+          );
+        }
+        if (user.hardScore > existingUser.hardScore) {
+          uniqueUsers[user.username] = Player(
+            username: user.username,
+            easyScore: existingUser.easyScore,
+            mediumScore: existingUser.mediumScore,
+            hardScore: user.hardScore,
+          );
+        }
+      }
+    }
+
+    return uniqueUsers.values.toList();
+  }
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_counter > 0) {
         setState(() {
           _counter--;
+
+          if (_counter == 6 && AudioUtil.isSounds) {
+            FlameAudio.play('8seconds.mp3', volume: AudioUtil.soundVolume * 13);
+          }
         });
       } else {
+        //timer runs out
         timer.cancel();
-        _endGame(); // Cancel the timer when it reaches 0
+        _endGame();
       }
     });
   }
 
   void _endGame() {
-    _score = _counter; // remaining time = score
-    _saveScore(_difficulty); // Save the score
+    bool timerExpired = _counter == 0;
+
+    if (timerExpired) {
+      //timer expires
+      FlameAudio.play('cry.mp3', volume: AudioUtil.soundVolume * 13);
+    } else {
+      FlameAudio.play('applause.mp3', volume: AudioUtil.soundVolume * 13);
+    }
+    _score = _counter; //remaining time = score
+    _saveScore(_difficulty); //save score
   }
 
   void handleCardTap(Cards card) {
@@ -81,7 +162,7 @@ class _GameState extends State<Game> {
       return;
     }
     if (card.isMatched || card == _tappedCard) {
-      // Do nothing if the card is already matched
+      //do nothing if card already matched
       return;
     }
     card.isTapped = true;
@@ -90,13 +171,24 @@ class _GameState extends State<Game> {
         _tappedCard = card;
       } else {
         if (_tappedCard!.id == card.id) {
-          // If cards match (have the same ID), mark them as matched and remove them
+          //if cards match, mark them as match
+          List<String> audioFiles = [
+            //random audiofiles for matched cards
+            '1.mp3',
+            '2.mp3',
+            '3.mp3',
+            '4.mp3',
+            '5.mp3',
+            '6.mp3',
+            '7.mp3'
+          ];
+          audioFiles.shuffle();
+          FlameAudio.play(audioFiles.first, volume: AudioUtil.soundVolume * 13);
           _tappedCard!.isMatched = true;
           card.isMatched = true;
           _tappedCard = null;
-          _showMatchedText();
         } else {
-          // If cards don't match, flip them back
+          //flip cards back if they do not match
           _enableTaps = false;
           Timer(const Duration(milliseconds: 500), () {
             _tappedCard?.isTapped = false;
@@ -108,47 +200,35 @@ class _GameState extends State<Game> {
       }
     });
     if (_cards.every((card) => card.isMatched)) {
-      _timer.cancel();
+      _timer.cancel(); //all cards are matched -> end game
       _endGame();
     }
-  }
-
-  void _showMatchedText() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('You found a match!'),
-        duration: Duration(seconds: 2), // Adjust duration as needed
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {
-            // Handle action press if needed
-          },
-        ),
-      ),
-    );
   }
 
   Future<void> _saveScore(String difficulty) async {
     bool timerExpired = _counter == 0;
 
-    int? storeScore = await _showConfirmationDialog(timerExpired: timerExpired);
+    int? storeScore;
+    if (timerExpired) {
+      storeScore = await _showGameOverDialog();
+    } else {
+      storeScore = await _showCongratulationsDialog();
+    }
 
     if (storeScore != null) {
       if (storeScore == 1) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Menu()),
-        );
+        _showPlayAgainDialog();
+
         String loggedInUser =
             Provider.of<UserState>(context, listen: false).loggedInUser ?? '';
 
-        //add code to input score
+        //saveing of score to db
         if (difficulty == 'Easy') {
           try {
-            // Fetch player data from server
+            //fetch player data
             List<Player> players = await Player.fetchData();
 
-            // Find the player with the username
+            //find player w/ the username
             Player? player = players.firstWhere(
               (player) => player.username == loggedInUser,
               orElse: () => Player(
@@ -165,20 +245,14 @@ class _GameState extends State<Game> {
             if (_score >= easyScore) {
               await Player.addUserData(
                   loggedInUser, _score, mediumScore, hardScore);
-            } else {
-              // Show a dialog indicating the current score is lower than the high score
-              // You can implement this
             }
           } catch (e) {
-            // Handle errors
             print('Error: $e');
           }
         } else if (difficulty == 'Medium') {
           try {
-            // Fetch player data from server
             List<Player> players = await Player.fetchData();
 
-            // Find the player with the username
             Player? player = players.firstWhere(
               (player) => player.username == loggedInUser,
               orElse: () => Player(
@@ -196,19 +270,15 @@ class _GameState extends State<Game> {
               await Player.addUserData(
                   loggedInUser, easyScore, _score, hardScore);
             } else {
-              // Show a dialog indicating the current score is lower than the high score
-              // You can implement this
+              print('lower score');
             }
           } catch (e) {
-            // Handle errors
             print('Error: $e');
           }
         } else if (difficulty == 'Hard') {
           try {
-            // Fetch player data from server
             List<Player> players = await Player.fetchData();
 
-            // Find the player with the username
             Player? player = players.firstWhere(
               (player) => player.username == loggedInUser,
               orElse: () => Player(
@@ -225,12 +295,8 @@ class _GameState extends State<Game> {
             if (_score >= mediumScore) {
               await Player.addUserData(
                   loggedInUser, easyScore, mediumScore, _score);
-            } else {
-              // Show a dialog indicating the current score is lower than the high score
-              // You can implement this
-            }
+            } else {}
           } catch (e) {
-            // Handle errors
             print('Error: $e');
           }
         }
@@ -254,6 +320,121 @@ class _GameState extends State<Game> {
     }
   }
 
+  void _showPlayAgainDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+                width: 300,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xff9C51E8).withOpacity(1),
+                      spreadRadius: 0,
+                      blurRadius: 0,
+                      offset: Offset(8, 8),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Color(0xffFFBEF3).withOpacity(1),
+                    width: 8,
+                  ),
+                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  SizedBox(height: 10),
+                  Stack(children: [
+                    Text('Do you want to \nplay again?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 25,
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 5
+                            ..color = Color(0xffA673DE),
+                        )),
+                    Text('Do you want to \nplay again?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 25,
+                          color: Colors.white,
+                        )),
+                  ]),
+                  SizedBox(height: 10),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _restartGame();
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all<BorderSide>(
+                            BorderSide(color: Color(0xffA673DE))),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      child: Text("    YES     ",
+                          style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xffA673DE),
+                              fontSize: 12)),
+                    ),
+                    SizedBox(width: 15),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Menu()));
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      child: Text("      NO      ",
+                          style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontSize: 12)),
+                    ),
+                  ]),
+                  SizedBox(height: 15),
+                ])));
+      },
+    );
+  }
+
   Future<bool> _showConfirmationExitDialog() async {
     bool? confirmExit = await showDialog<bool>(
       context: context,
@@ -264,20 +445,114 @@ class _GameState extends State<Game> {
             Navigator.of(context).pop();
             return false;
           },
-          child: AlertDialog(
-            title: Text("Are you sure?"),
-            content: Text("You will lose all progress."),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(true), //yes, continue
-                child: Text("Yes"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("No"),
-              ),
-            ],
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+                width: 400,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xff9C51E8).withOpacity(1),
+                      spreadRadius: 0,
+                      blurRadius: 0,
+                      offset: Offset(8, 8),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: Color(0xffFFBEF3).withOpacity(1),
+                    width: 8,
+                  ),
+                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  SizedBox(height: 10),
+                  Stack(children: [
+                    Text('Are you sure?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 30,
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 5
+                            ..color = Color(0xffA673DE),
+                        )),
+                    Text('Are you sure?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 30,
+                          color: Colors.white,
+                        )),
+                  ]),
+                  SizedBox(height: 10),
+                  Text(
+                    "You will lose all progress.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontFamily: 'Catfiles',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xff9C51E8)),
+                  ),
+                  SizedBox(height: 10),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all<BorderSide>(
+                            BorderSide(color: Color(0xffA673DE))),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ), //yes, continue
+                      child: Text("    YES     ",
+                          style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xffA673DE),
+                              fontSize: 12)),
+                    ),
+                    SizedBox(width: 15),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      child: Text("      NO      ",
+                          style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontSize: 12)),
+                    ),
+                  ]),
+                  SizedBox(height: 15),
+                ])),
           ),
         );
       },
@@ -286,48 +561,334 @@ class _GameState extends State<Game> {
     return confirmExit ?? false;
   }
 
-  Future<int?> _showConfirmationDialog({bool timerExpired = false}) async {
-    String title = timerExpired ? 'Game Over!' : 'Congratulations!';
-    String content = timerExpired
-        ? 'Haha loser, you ran out of time! :P'
-        : 'You finished with ${_secondsToMinutes(_score)} time remaining';
-
-    // Define button texts
-    String playAgainText = timerExpired ? 'Try Again' : 'Play Again';
-    String ExitText = timerExpired ? 'Exit' : 'Exit without Saving';
-
-    // Define the list of buttons
-    List<Widget> buttons = [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(0), //play again
-        child: Text(playAgainText),
-      ),
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(2), //exit
-        child: Text(ExitText),
-      ),
-    ];
-
-    // Add the "Save Score" button if the timer hasn't expired
-    if (!timerExpired) {
-      buttons.add(
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(1), //save
-          child: Text("Save Score"),
-        ),
-      );
-    }
-
+  Future<int?> _showGameOverDialog() async {
     return await showDialog<int?>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: _onBackPressed,
-          child: AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: buttons,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: SizedBox(
+              height: 240,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 500,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 25),
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xff9C51E8).withOpacity(1),
+                          spreadRadius: 0,
+                          blurRadius: 0,
+                          offset: Offset(8, 8),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Color(0xffFFBEF3).withOpacity(1),
+                        width: 8,
+                      ),
+                    ),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text(
+                        'Haha loser, you ran out of time! :P',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff9C51E8)),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              _timer.cancel();
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Menu()));
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Color(0xff9C51E8)),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 12),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Text('    Exit    ',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                    fontSize: 12)),
+                          ),
+                          SizedBox(width: 20),
+                          OutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _restartGame();
+                            },
+                            style: ButtonStyle(
+                              side: MaterialStateProperty.all<BorderSide>(
+                                  BorderSide(color: Color(0xffA673DE))),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 12),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Text('  Try Again  ',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xffA673DE),
+                                    fontSize: 12)),
+                          ),
+                        ],
+                      )
+                    ]),
+                  ),
+                  Positioned(
+                      top: 5,
+                      left: 33,
+                      right: 33,
+                      child: Stack(
+                        children: [
+                          Text('GAME OVER!',
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 40,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 5
+                                  ..color = Color(0xffA673DE),
+                              )),
+                          Text('GAME OVER!',
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 40,
+                                color: Colors.white,
+                              )),
+                        ],
+                      ))
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<int?> _showCongratulationsDialog() async {
+    return await showDialog<int?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: _onBackPressed,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: SizedBox(
+              height: 330,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 500,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 25),
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xff9C51E8).withOpacity(1),
+                          spreadRadius: 0,
+                          blurRadius: 0,
+                          offset: Offset(8, 8),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Color(0xffFFBEF3).withOpacity(1),
+                        width: 8,
+                      ),
+                    ),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text(
+                        'You finished with this time remaining:',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff9C51E8)),
+                      ),
+                      SizedBox(height: 10),
+                      Stack(children: [
+                        Text('${_secondsToMinutes(_score)}',
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 43,
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 5
+                                ..color = Color(0xffA673DE),
+                            )),
+                        Text('${_secondsToMinutes(_score)}',
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 43,
+                              color: Color(0xffFFBEF3),
+                            )),
+                      ]),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(context).pop(0), //play again
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Color(0xff9C51E8)),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 12),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Text(' Play Again ',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                    fontSize: 12)),
+                          ),
+                          SizedBox(width: 10),
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(context).pop(1), //save
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Color(0xff9C51E8)),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 12),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Text(' Save Score ',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                    fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(2), //exit
+                        style: ButtonStyle(
+                          side: MaterialStateProperty.all<BorderSide>(
+                              BorderSide(color: Color(0xffA673DE))),
+                          padding:
+                              MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                          ),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                        child: Text('      Exit      ',
+                            style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xffA673DE),
+                                fontSize: 12)),
+                      ),
+                    ]),
+                  ),
+                  Positioned(
+                      top: 0,
+                      left: 45,
+                      right: 33,
+                      child: Stack(
+                        children: [
+                          Text('CONGRATS!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 40,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 5
+                                  ..color = Color(0xffA673DE),
+                              )),
+                          Text('CONGRATS!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 40,
+                                color: Colors.white,
+                              )),
+                        ],
+                      ))
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -335,16 +896,25 @@ class _GameState extends State<Game> {
   }
 
   void _restartGame() {
+    _timer.cancel();
     setState(() {
       if (_difficulty.contains("Easy")) {
+        _rows = 4;
+        _columns = 4;
         _counter = 300;
+        _cards = getRandomCards(_rows * _columns, end: 16);
       } else if (_difficulty.contains("Medium")) {
+        _rows = 5;
+        _columns = 4;
         _counter = 240;
-      } else {
+        _cards = getRandomCards(_rows * _columns, start: 16, end: 36);
+      } else if (_difficulty.contains("Hard")) {
+        _rows = 6;
+        _columns = 5;
         _counter = 180;
+        _cards = getRandomCards(_rows * _columns, start: 36, end: 66);
       }
       _score = 0;
-      _cards = getRandomCards(_rows * _columns);
       _tappedCard = null;
       _startTimer();
     });
@@ -353,6 +923,7 @@ class _GameState extends State<Game> {
   @override
   void dispose() {
     _timer.cancel();
+    _isMounted = false;
     super.dispose();
   }
 
@@ -373,22 +944,145 @@ class _GameState extends State<Game> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 65,
+                height: 15,
               ),
               Container(
-                width: 230,
+                width: 150,
                 height: 120,
                 child:
                     Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
               ),
-              Text(
-                '${_secondsToMinutes(_counter)}',
-                style: TextStyle(
-                  fontFamily: 'Aero',
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    width: 180,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: Color(0xffFFBEF3),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromARGB(255, 253, 198, 165),
+                          blurRadius: 0,
+                          offset: Offset(4, 4),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Color(0xffA673DE).withOpacity(1),
+                        width: 3,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${_secondsToMinutes(_counter)}',
+                            style: TextStyle(
+                              fontFamily: 'Aero',
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                              fontSize: 22,
+                            ),
+                          ),
+                          SizedBox(width: 15),
+                          Flexible(
+                            child: Container(
+                              height: 25,
+                              child: TextButton(
+                                onPressed: () {
+                                  _restartConfirmation(_difficulty);
+                                },
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                  ),
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                    Color(0xffA673DE),
+                                  ),
+                                  elevation:
+                                      MaterialStateProperty.all<double>(5.0),
+                                ),
+                                child: Text(
+                                  'Restart',
+                                  style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 17,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Stack(
+                        children: [
+                          Text(
+                            _difficulty.contains('Easy')
+                                ? 'EASY'
+                                : _difficulty.contains('Medium')
+                                    ? 'MEDIUM'
+                                    : _difficulty.contains('Hard')
+                                        ? 'HARD'
+                                        : '',
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 23,
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 5
+                                ..color = Color(0xffA673DE),
+                            ),
+                          ),
+                          Text(
+                            _difficulty.contains('Easy')
+                                ? 'EASY'
+                                : _difficulty.contains('Medium')
+                                    ? 'MEDIUM'
+                                    : _difficulty.contains('Hard')
+                                        ? 'HARD'
+                                        : '',
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 23,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        'Current Highscore: ${_getFormattedHighscore()}',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w200,
+                          fontSize: 10,
+                          color: Color(0xffA673DE),
+                        ),
+                      )
+                    ],
+                  )
+                ],
               ),
               Expanded(
                 child: Center(
@@ -421,36 +1115,171 @@ class _GameState extends State<Game> {
     );
   }
 
+  Future<void> _restartConfirmation(String difficulty) async {
+    bool confirmExit = await _showConfirmationExitDialog();
+    if (confirmExit) {
+      _restartGame();
+    } else {
+      return;
+    }
+  }
+
   String _secondsToMinutes(int seconds) {
     int minutes = (seconds ~/ 60);
     int remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  String _getFormattedHighscore() {
+    List<Player> loggedInUserScores = getLoggedInUserScores();
+    int highestScore = 0;
+    for (Player player in loggedInUserScores) {
+      if (_difficulty.contains("Easy")) {
+        highestScore =
+            player.easyScore > highestScore ? player.easyScore : highestScore;
+      } else if (_difficulty.contains("Medium")) {
+        highestScore = player.mediumScore > highestScore
+            ? player.mediumScore
+            : highestScore;
+      } else if (_difficulty.contains("Hard")) {
+        highestScore =
+            player.hardScore > highestScore ? player.hardScore : highestScore;
+      }
+    }
+
+    //format high score in 00:00 format
+    String formattedHighscore =
+        '${(highestScore ~/ 60).toString().padLeft(2, '0')}:${(highestScore % 60).toString().padLeft(2, '0')}';
+
+    return formattedHighscore;
+  }
+
   Future<bool> _onBackPressed() async {
     return await showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Exit Game"),
-              content: Text("Are you sure you want to exit the game?"),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("No"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to the main menu
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Menu()),
-                    );
-                  },
-                  child: Text("Yes"),
-                ),
-              ],
-            );
+            return Dialog(
+                backgroundColor: Colors.transparent,
+                child: Container(
+                    width: 300,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 18),
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xff9C51E8).withOpacity(1),
+                          spreadRadius: 0,
+                          blurRadius: 0,
+                          offset: Offset(8, 8),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Color(0xffFFBEF3).withOpacity(1),
+                        width: 8, // Border width
+                      ),
+                    ),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      SizedBox(height: 10),
+                      Stack(children: [
+                        Text('Exit Game?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 30,
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 5
+                                ..color = Color(0xffA673DE),
+                            )),
+                        Text('Exit Game?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Catfiles',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 30,
+                              color: Colors.white,
+                            )),
+                      ]),
+                      SizedBox(height: 10),
+                      Text(
+                        'Are you sure? You will lose all your progress.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff9C51E8)),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                _timer.cancel();
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Menu()));
+                              },
+                              style: ButtonStyle(
+                                side: MaterialStateProperty.all<BorderSide>(
+                                    BorderSide(color: Color(0xffA673DE))),
+                                padding: MaterialStateProperty.all<
+                                    EdgeInsetsGeometry>(
+                                  EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 12),
+                                ),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                              ), //yes, continue
+                              child: Text("    YES     ",
+                                  style: TextStyle(
+                                      fontFamily: 'Catfiles',
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xffA673DE),
+                                      fontSize: 12)),
+                            ),
+                            SizedBox(width: 15),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Color(0xff9C51E8)),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                padding: MaterialStateProperty.all<
+                                    EdgeInsetsGeometry>(
+                                  EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 12),
+                                ),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                              ),
+                              child: Text("      NO      ",
+                                  style: TextStyle(
+                                      fontFamily: 'Catfiles',
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontSize: 12)),
+                            ),
+                          ]),
+                      SizedBox(height: 15),
+                    ])));
           },
         ) ??
         false;

@@ -20,6 +20,10 @@ class LeaderboardState extends State<Leaderboard> {
   void initState() {
     super.initState();
     _isMounted = true; // Set _isMounted to true when the widget is mounted
+    _loadUsers();
+  }
+
+  void _loadUsers() {
     Player.fetchData().then((data) {
       if (_isMounted) {
         setState(() {
@@ -111,14 +115,14 @@ class LeaderboardState extends State<Leaderboard> {
                 alignment: Alignment.center,
                 child: Text('${index + 1}',
                     style: TextStyle(
-                        fontFamily: 'Archivo Black',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Catfiles',
+                        fontWeight: FontWeight.w500,
                         color: Color.fromARGB(255, 119, 56, 4),
                         fontSize: 18)),
               );
               backgroundColor = Color.fromARGB(255, 255, 238, 160)
                   .withOpacity(0.8); // Yellow background for the first item
-              tileHeight = 60;
+              tileHeight = 62;
               fontSize = 18;
               break;
             case 1:
@@ -134,8 +138,8 @@ class LeaderboardState extends State<Leaderboard> {
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(
-                      fontFamily: 'Archivo Black',
-                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Catfiles',
+                      fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 65, 65, 65),
                       fontSize:
                           16), // Adjust font size and color for the number
@@ -143,7 +147,7 @@ class LeaderboardState extends State<Leaderboard> {
               );
               backgroundColor = Color.fromARGB(
                   255, 197, 197, 197); // Grey background for the second item
-              tileHeight = 55;
+              tileHeight = 57;
               fontSize = 16;
               break;
             case 2:
@@ -159,8 +163,8 @@ class LeaderboardState extends State<Leaderboard> {
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(
-                      fontFamily: 'Archivo Black',
-                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Catfiles',
+                      fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 255, 183, 154),
                       fontSize:
                           16), // Adjust font size and color for the number
@@ -168,7 +172,7 @@ class LeaderboardState extends State<Leaderboard> {
               );
               backgroundColor = Color.fromARGB(
                   255, 214, 142, 115); // Brown background for the third item
-              tileHeight = 55;
+              tileHeight = 57;
               fontSize = 16;
               break;
             default:
@@ -184,8 +188,8 @@ class LeaderboardState extends State<Leaderboard> {
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(
-                      fontFamily: 'Archivo Black',
-                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Catfiles',
+                      fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 82, 33, 131),
                       fontSize:
                           16), // Adjust font size and color for the number
@@ -193,7 +197,7 @@ class LeaderboardState extends State<Leaderboard> {
               );
               backgroundColor =
                   Color.fromARGB(255, 146, 81, 199).withOpacity(0.3);
-              tileHeight = 50;
+              tileHeight = 53;
               fontSize = 14; // Transparent background for the rest of the items
           }
 
@@ -211,8 +215,12 @@ class LeaderboardState extends State<Leaderboard> {
               child: Container(
                 height: tileHeight,
                 child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                   leading: Container(
-                    child: leadingWidget,
+                    width:
+                        40, // Adjust the width of the leading widget as needed
+                    height: 40,
+                    child: Center(child: leadingWidget),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -238,14 +246,23 @@ class LeaderboardState extends State<Leaderboard> {
         .toList();
   }
 
+  String formatScore(int score) {
+    int minutes = (score ~/ 60);
+    int seconds = (score % 60);
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = seconds.toString().padLeft(2, '0');
+    return '$minutesStr:$secondsStr';
+  }
+
   String _getScore(Player user) {
     switch (currentScoreType) {
       case 'Easy':
-        return '${user.easyScore}';
+        return formatScore(user.easyScore);
       case 'Medium':
-        return '${user.mediumScore}';
+        return formatScore(user.mediumScore);
+        ;
       case 'Hard':
-        return '${user.hardScore}';
+        return formatScore(user.hardScore);
       default:
         return '';
     }
@@ -275,13 +292,40 @@ class LeaderboardState extends State<Leaderboard> {
                 width: 100,
               ),
               SizedBox(height: 8),
-              SizedBox(
-                child: Transform.scale(
-                  scale: 0.70, // Adjust the scale factor as needed
-                  child: Image.asset(
-                    'assets/icons/leaderboard_title.png',
-                  ),
-                ),
+              Center(
+                child: SizedBox(
+                    child: Stack(
+                  children: [
+                    Text('LEADERBOARD',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 35,
+                          wordSpacing: 10,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(6, 6),
+                              color: Color(0xffFFBEF3),
+                              blurRadius: 0,
+                            ),
+                          ],
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 7
+                            ..color = Color(0xff6D027C),
+                        )),
+                    Text('LEADERBOARD',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 35,
+                          wordSpacing: 10,
+                          color: Colors.white,
+                        )),
+                  ],
+                )),
               ),
               Stack(children: [
                 Center(
@@ -352,9 +396,10 @@ class LeaderboardState extends State<Leaderboard> {
                             child: Text(
                               'Easy',
                               style: TextStyle(
-                                  fontFamily: 'Aero',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13),
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                           ElevatedButton(
@@ -384,8 +429,8 @@ class LeaderboardState extends State<Leaderboard> {
                             child: Text(
                               'Medium',
                               style: TextStyle(
-                                  fontFamily: 'Aero',
-                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Catfiles',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 13),
                             ),
                           ),
@@ -416,8 +461,8 @@ class LeaderboardState extends State<Leaderboard> {
                             child: Text(
                               'Hard',
                               style: TextStyle(
-                                  fontFamily: 'Aero',
-                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Catfiles',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 13),
                             ),
                           ),
@@ -427,6 +472,31 @@ class LeaderboardState extends State<Leaderboard> {
                   ),
                 ),
               ]),
+              SizedBox(height: 15),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => Menu()));
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0))),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                  ),
+                  child: Text(
+                    'Close',
+                    style: TextStyle(
+                      fontFamily: 'Catfiles',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),

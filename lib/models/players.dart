@@ -1,5 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+
+class UserProvider extends ChangeNotifier {
+  Player? loggedInUser;
+
+  void setLoggedInUser(Player user) {
+    loggedInUser = user;
+    notifyListeners();
+  }
+}
 
 class Player {
   final String username;
