@@ -24,8 +24,8 @@ class CustomIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       'assets/icons/card_icon.svg',
-      width: 50,
-      height: 50,
+      width: 40,
+      height: 40,
     );
   }
 }

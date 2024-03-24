@@ -1,6 +1,7 @@
 import 'package:appdev/models/audio.dart';
 import 'package:appdev/models/players.dart';
 import 'package:appdev/pages/audio_dialog.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -184,203 +185,209 @@ class _MenuState extends State<Menu> {
     final prefs = await SharedPreferences.getInstance();
     final TextEditingController usernameController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        double dialogWidth =
+            MediaQuery.of(context).size.width * 0.8; // Adjust as needed
+
         return Dialog(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: 16.0, vertical: 25.0),
-            backgroundColor: Colors.transparent,
-            child: Container(
-                width: 400,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                margin: const EdgeInsets.all(10),
-                decoration: dialogBoxDecoration,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+          insetPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 25.0),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: dialogWidth,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            margin: const EdgeInsets.all(10),
+            decoration: dialogBoxDecoration,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 2),
+                Stack(
                   children: [
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Stack(children: [
-                      Text('Sign Up',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Catfiles',
-                            fontWeight: FontWeight.w500,
-                            fontSize: 30,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(6, 6),
-                                color: Color(0xffFFBEF3),
-                                blurRadius: 0,
-                              ),
-                            ],
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 7
-                              ..color = Color(0xffFF52A4),
-                          )),
-                      Text('Sign Up',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Catfiles',
-                            fontWeight: FontWeight.w500,
-                            fontSize: 30,
-                            color: Colors.white,
-                          )),
-                    ]),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      width: 300,
-                      child: TextField(
-                        controller: usernameController,
-                        decoration: InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xff9c51e8).withOpacity(0.7)),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 13.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(
-                              color:
-                                  Color(0xff9c51e8), // Change the border color
-                              width: 2.0, // Change the border width
-                            ),
+                    Text(
+                      'Sign Up',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Catfiles',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 30,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(6, 6),
+                            color: Color(0xffFFBEF3),
+                            blurRadius: 0,
                           ),
-                        ),
+                        ],
+                        foreground: Paint()
+                          ..style = PaintingStyle.stroke
+                          ..strokeWidth = 7
+                          ..color = Color(0xffFF52A4),
                       ),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      width: 300,
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xff9c51e8).withOpacity(0.7)),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 13.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: BorderSide(
-                              color:
-                                  Color(0xff9c51e8), // Change the border color
-                              width: 2.0, // Change the border width
-                            ),
-                          ),
-                        ),
+                    Text(
+                      'Sign Up',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Catfiles',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 30,
+                        color: Colors.white,
                       ),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Center(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Close dialog
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color(0xff9C51E8)), // Background color
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white), // Text color
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15,
-                                    vertical: 12), // Button padding
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      16), // Button border radius
-                                ),
-                              ),
-                            ),
-                            child: Text('   CANCEL   ',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12)),
-                          ),
-                          SizedBox(width: 10),
-                          OutlinedButton(
-                            onPressed: () async {
-                              final existingUser =
-                                  prefs.getString(usernameController.text);
-                              if (existingUser != null) {
-                                // Account does not exist
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 32, vertical: 16),
-                                        margin: const EdgeInsets.all(10),
-                                        decoration: dialogBoxDecoration,
-                                        child: buildErrorDialog(context,
-                                            'Username already exists! Please choose a different one.'),
-                                      )),
-                                );
-                              } else {
-                                await prefs.setString(usernameController.text,
-                                    passwordController.text);
-                                Player.addUserData(
-                                    usernameController.text, 0, 0, 0);
-                                Provider.of<UserState>(context, listen: false)
-                                    .setLoggedInUser(usernameController.text);
-                                Navigator.pop(context); // Close dialog
-                              }
-                            },
-                            style: ButtonStyle(
-                              side: MaterialStateProperty.all<BorderSide>(
-                                  BorderSide(
-                                      color:
-                                          Color(0xffA673DE))), // Border color
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15,
-                                    vertical: 12), // Button padding
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      16), // Button border radius
-                                ),
-                              ),
-                            ),
-                            child: Text('Create Account',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xffA673DE),
-                                    fontSize: 12)),
-                          ),
-                        ])),
                   ],
-                )));
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Container(
+                    width: 300,
+                    child: TextField(
+                      controller: usernameController,
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff9c51e8).withOpacity(0.7),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 13.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: Color(0xff9c51e8),
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Flexible(
+                  child: Container(
+                    width: 300,
+                    child: TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff9c51e8).withOpacity(0.7),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 13.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: Color(0xff9c51e8),
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close dialog
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        '   CANCEL   ',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    OutlinedButton(
+                      onPressed: () async {
+                        final existingUser =
+                            prefs.getString(usernameController.text);
+                        if (existingUser != null) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => Dialog(
+                              backgroundColor: Colors.transparent,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 16),
+                                margin: const EdgeInsets.all(10),
+                                decoration: dialogBoxDecoration,
+                                child: buildErrorDialog(
+                                  context,
+                                  'Username already exists! Please choose a different one.',
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          await prefs.setString(
+                              usernameController.text, passwordController.text);
+                          Player.addUserData(usernameController.text, 0, 0, 0);
+                          Provider.of<UserState>(context, listen: false)
+                              .setLoggedInUser(usernameController.text);
+                          Navigator.pop(context); // Close dialog
+                        }
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all<BorderSide>(
+                          BorderSide(
+                            color: Color(0xffA673DE),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        'sign Up',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xffA673DE),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -536,8 +543,8 @@ class _MenuState extends State<Menu> {
                                 builder: (context) => Dialog(
                                     backgroundColor: Colors.transparent,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 32, vertical: 16),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 16),
                                       margin: const EdgeInsets.all(10),
                                       decoration: dialogBoxDecoration,
                                       child: buildErrorDialog(
@@ -558,7 +565,7 @@ class _MenuState extends State<Menu> {
                                     backgroundColor: Colors.transparent,
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 32, vertical: 16),
+                                          horizontal: 16, vertical: 16),
                                       margin: const EdgeInsets.all(10),
                                       decoration: dialogBoxDecoration,
                                       child: buildErrorDialog(
@@ -694,8 +701,8 @@ class _MenuState extends State<Menu> {
                         return Dialog(
                             backgroundColor: Colors.transparent,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 32, vertical: 16),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
                               margin: const EdgeInsets.all(10),
                               decoration: dialogBoxDecoration,
                               child: Column(
@@ -911,7 +918,7 @@ class _MenuState extends State<Menu> {
 
   Container _howToPlay(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       margin: const EdgeInsets.all(10),
       decoration: dialogBoxDecoration,
       child: Column(
@@ -1061,7 +1068,7 @@ class _MenuState extends State<Menu> {
             return Dialog(
                 backgroundColor: Colors.transparent,
                 child: Container(
-                    width: 300,
+                    width: SizeConfig.safeBlockHorizontal * 80,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 18),
                     margin: const EdgeInsets.all(10),
@@ -1115,66 +1122,83 @@ class _MenuState extends State<Menu> {
                             color: Color(0xff9C51E8)),
                       ),
                       SizedBox(height: 10),
-                      Row(
+                      Center(
+                          child: LayoutBuilder(builder: (context, constraints) {
+                        double fontSize = constraints.maxWidth *
+                            0.05; // Adjust the multiplier as needed
+                        double buttonWidth = constraints.maxWidth * 0.3;
+                        return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(true);
-                              },
-                              style: ButtonStyle(
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    BorderSide(color: Color(0xffA673DE))),
-                                padding: MaterialStateProperty.all<
-                                    EdgeInsetsGeometry>(
-                                  EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 12),
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                            Flexible(
+                              flex: 1,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                                style: ButtonStyle(
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      BorderSide(color: Color(0xffA673DE))),
+                                  padding: MaterialStateProperty.all<
+                                      EdgeInsetsGeometry>(
+                                    EdgeInsets.symmetric(
+                                        horizontal: buttonWidth *
+                                            0.1, // Adjust padding based on button size
+                                        vertical: buttonWidth * 0.08),
                                   ),
-                                ),
-                              ), //yes, continue
-                              child: Text("    QUIT T-T    ",
-                                  style: TextStyle(
-                                      fontFamily: 'Catfiles',
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xffA673DE),
-                                      fontSize: 12)),
-                            ),
-                            SizedBox(width: 15),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Color(0xff9C51E8)),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                padding: MaterialStateProperty.all<
-                                    EdgeInsetsGeometry>(
-                                  EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 12),
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
                                   ),
-                                ),
+                                ), //yes, continue
+                                child: Text("    QUIT T-T    ",
+                                    style: TextStyle(
+                                        fontFamily: 'Catfiles',
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xffA673DE),
+                                        fontSize: fontSize)),
                               ),
-                              child: Text("      STAY :D     ",
-                                  style: TextStyle(
-                                      fontFamily: 'Catfiles',
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                      fontSize: 12)),
                             ),
-                          ]),
-                      SizedBox(height: 15),
+                            SizedBox(width: 10),
+                            Flexible(
+                              flex: 1,
+                              child: TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Color(0xff9C51E8)),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                  padding: MaterialStateProperty.all<
+                                      EdgeInsetsGeometry>(
+                                    EdgeInsets.symmetric(
+                                        horizontal: buttonWidth *
+                                            0.1, // Adjust padding based on button size
+                                        vertical: buttonWidth * 0.08),
+                                  ),
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                ),
+                                child: Text("      STAY :D     ",
+                                    style: TextStyle(
+                                        fontFamily: 'Catfiles',
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                        fontSize: fontSize)),
+                              ),
+                            )
+                          ],
+                        );
+                      }))
                     ])));
           },
         ) ??

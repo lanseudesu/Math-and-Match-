@@ -3,8 +3,11 @@ import 'package:appdev/models/audio.dart';
 import 'package:appdev/models/card.dart';
 import 'package:appdev/pages/card_widget.dart';
 import 'package:appdev/pages/main_menu.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:appdev/models/players.dart';
 import 'dart:async';
@@ -571,12 +574,13 @@ class _GameState extends State<Game> {
           child: Dialog(
             backgroundColor: Colors.transparent,
             child: SizedBox(
-              height: 240,
+              width: SizeConfig.screenWidth * 0.8,
+              height: SizeConfig.screenHeight * 0.28,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   Container(
-                    width: 500,
+                    width: SizeConfig.safeBlockHorizontal * 80,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 25),
                     margin: const EdgeInsets.all(10),
@@ -607,84 +611,104 @@ class _GameState extends State<Game> {
                             color: Color(0xff9C51E8)),
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              _timer.cancel();
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Menu()));
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color(0xff9C51E8)),
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white),
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 12),
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                      Center(
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          double fontSize = constraints.maxWidth *
+                              0.05; // Adjust the multiplier as needed
+                          double buttonWidth = constraints.maxWidth * 0.4;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                flex: 1,
+                                child: TextButton(
+                                  onPressed: () {
+                                    _timer.cancel();
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Menu()));
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Color(0xff9C51E8)),
+                                    foregroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.white),
+                                    padding: MaterialStateProperty.all<
+                                        EdgeInsetsGeometry>(
+                                      EdgeInsets.symmetric(
+                                          horizontal: buttonWidth *
+                                              0.1, // Adjust padding based on button size
+                                          vertical: buttonWidth * 0.08),
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text('    Exit    ',
+                                      style: TextStyle(
+                                        fontFamily: 'Catfiles',
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                        fontSize: fontSize,
+                                      )),
                                 ),
                               ),
-                            ),
-                            child: Text('    Exit    ',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                    fontSize: 12)),
-                          ),
-                          SizedBox(width: 20),
-                          OutlinedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _restartGame();
-                            },
-                            style: ButtonStyle(
-                              side: MaterialStateProperty.all<BorderSide>(
-                                  BorderSide(color: Color(0xffA673DE))),
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 12),
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                              SizedBox(width: 15),
+                              Flexible(
+                                flex: 1,
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _restartGame();
+                                  },
+                                  style: ButtonStyle(
+                                    side: MaterialStateProperty.all<BorderSide>(
+                                        BorderSide(color: Color(0xffA673DE))),
+                                    padding: MaterialStateProperty.all<
+                                        EdgeInsetsGeometry>(
+                                      EdgeInsets.symmetric(
+                                          horizontal: buttonWidth *
+                                              0.1, // Adjust padding based on button size
+                                          vertical: buttonWidth * 0.08),
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text('  Try Again  ',
+                                      style: TextStyle(
+                                          fontFamily: 'Catfiles',
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xffA673DE),
+                                          fontSize: fontSize)),
                                 ),
                               ),
-                            ),
-                            child: Text('  Try Again  ',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xffA673DE),
-                                    fontSize: 12)),
-                          ),
-                        ],
+                            ],
+                          );
+                        }),
                       )
                     ]),
                   ),
                   Positioned(
-                      top: 5,
-                      left: 33,
-                      right: 33,
+                      top: (SizeConfig.safeBlockVertical * 2 + 5) -
+                          20, // Example top position
+                      left: SizeConfig.safeBlockHorizontal * 15 - 10,
                       child: Stack(
                         children: [
                           Text('GAME OVER!',
                               style: TextStyle(
                                 fontFamily: 'Catfiles',
                                 fontWeight: FontWeight.w500,
-                                fontSize: 40,
+                                fontSize: SizeConfig.safeBlockHorizontal * 8,
                                 foreground: Paint()
                                   ..style = PaintingStyle.stroke
                                   ..strokeWidth = 5
@@ -694,7 +718,7 @@ class _GameState extends State<Game> {
                               style: TextStyle(
                                 fontFamily: 'Catfiles',
                                 fontWeight: FontWeight.w500,
-                                fontSize: 40,
+                                fontSize: SizeConfig.safeBlockHorizontal * 8,
                                 color: Colors.white,
                               )),
                         ],
@@ -709,6 +733,10 @@ class _GameState extends State<Game> {
   }
 
   Future<int?> _showCongratulationsDialog() async {
+    // Ensure SizeConfig is initialized properly
+    double dialogWidth = MediaQuery.of(context).size.width * 0.8;
+    double dialogHeight = MediaQuery.of(context).size.height * 0.6;
+
     return await showDialog<int?>(
       context: context,
       barrierDismissible: false,
@@ -718,7 +746,8 @@ class _GameState extends State<Game> {
           child: Dialog(
             backgroundColor: Colors.transparent,
             child: SizedBox(
-              height: 330,
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.6,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -743,149 +772,203 @@ class _GameState extends State<Game> {
                         width: 8,
                       ),
                     ),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text(
-                        'You finished with this time remaining:',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'You finished with this time remaining:',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
                             fontFamily: 'Catfiles',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xff9C51E8)),
-                      ),
-                      SizedBox(height: 10),
-                      Stack(children: [
-                        Text('${_secondsToMinutes(_score)}',
-                            style: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 43,
-                              foreground: Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 5
-                                ..color = Color(0xffA673DE),
-                            )),
-                        Text('${_secondsToMinutes(_score)}',
-                            style: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 43,
-                              color: Color(0xffFFBEF3),
-                            )),
-                      ]),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.of(context).pop(0), //play again
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color(0xff9C51E8)),
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white),
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 12),
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                            ),
-                            child: Text(' Play Again ',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                    fontSize: 12)),
-                          ),
-                          SizedBox(width: 10),
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.of(context).pop(1), //save
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color(0xff9C51E8)),
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white),
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 12),
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                            ),
-                            child: Text(' Save Score ',
-                                style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                    fontSize: 12)),
-                          ),
-                        ],
-                      ),
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(2), //exit
-                        style: ButtonStyle(
-                          side: MaterialStateProperty.all<BorderSide>(
-                              BorderSide(color: Color(0xffA673DE))),
-                          padding:
-                              MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                          ),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
+                            color: Color(0xff9C51E8),
                           ),
                         ),
-                        child: Text('      Exit      ',
-                            style: TextStyle(
-                                fontFamily: 'Catfiles',
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xffA673DE),
-                                fontSize: 12)),
-                      ),
-                    ]),
-                  ),
-                  Positioned(
-                      top: 0,
-                      left: 45,
-                      right: 33,
-                      child: Stack(
-                        children: [
-                          Text('CONGRATS!',
-                              textAlign: TextAlign.center,
+                        SizedBox(height: 10),
+                        Stack(
+                          children: [
+                            Text(
+                              '${_secondsToMinutes(_score ?? 0)}',
                               style: TextStyle(
                                 fontFamily: 'Catfiles',
                                 fontWeight: FontWeight.w500,
-                                fontSize: 40,
+                                fontSize: 43,
                                 foreground: Paint()
                                   ..style = PaintingStyle.stroke
                                   ..strokeWidth = 5
                                   ..color = Color(0xffA673DE),
-                              )),
-                          Text('CONGRATS!',
-                              textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Text(
+                              '${_secondsToMinutes(_score ?? 0)}',
                               style: TextStyle(
                                 fontFamily: 'Catfiles',
                                 fontWeight: FontWeight.w500,
-                                fontSize: 40,
-                                color: Colors.white,
-                              )),
-                        ],
-                      ))
+                                fontSize: 43,
+                                color: Color(0xffFFBEF3),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Center(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double fontSize = constraints.maxWidth * 0.05;
+                              double buttonWidth = constraints.maxWidth * 0.3;
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    flex: 1,
+                                    child: TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(0),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Color(0xff9C51E8)),
+                                        foregroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.white),
+                                        padding: MaterialStateProperty.all<
+                                            EdgeInsetsGeometry>(
+                                          EdgeInsets.symmetric(
+                                              horizontal: buttonWidth *
+                                                  0.1, // Adjust padding based on button size
+                                              vertical: buttonWidth * 0.08),
+                                        ),
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        ' Play Again ',
+                                        style: TextStyle(
+                                            fontFamily: 'Catfiles',
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                            fontSize: fontSize),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Flexible(
+                                    flex: 1,
+                                    child: TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(1),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Color(0xff9C51E8)),
+                                        foregroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.white),
+                                        padding: MaterialStateProperty.all<
+                                            EdgeInsetsGeometry>(
+                                          EdgeInsets.symmetric(
+                                              horizontal: buttonWidth *
+                                                  0.1, // Adjust padding based on button size
+                                              vertical: buttonWidth * 0.08),
+                                        ),
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        ' Save Score ',
+                                        style: TextStyle(
+                                            fontFamily: 'Catfiles',
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                            fontSize: fontSize),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                        Center(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(2),
+                            style: ButtonStyle(
+                              side: MaterialStateProperty.all<BorderSide>(
+                                BorderSide(
+                                  color: Color(0xffA673DE),
+                                ),
+                              ),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 12),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              '     Exit     ',
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xffA673DE),
+                                fontSize: 9,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    top: dialogHeight / 2 -
+                        (dialogHeight * 0.3) -
+                        28, // Example top position
+                    left: (dialogWidth / 2) - (dialogWidth * 0.38) - 5,
+                    child: Stack(
+                      children: [
+                        Text(
+                          'CONGRATS!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontWeight: FontWeight.w500,
+                            fontSize: SizeConfig.safeBlockHorizontal * 10,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 5
+                              ..color = Color(0xffA673DE),
+                          ),
+                        ),
+                        Text(
+                          'CONGRATS!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontWeight: FontWeight.w500,
+                            fontSize: SizeConfig.safeBlockHorizontal * 10,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -953,135 +1036,140 @@ class _GameState extends State<Game> {
                     Image.asset('assets/icons/logo.png', fit: BoxFit.contain),
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SizedBox(
-                    width: 20,
+                    width: 15,
                   ),
-                  Container(
-                    width: 180,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: Color(0xffFFBEF3),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromARGB(255, 253, 198, 165),
-                          blurRadius: 0,
-                          offset: Offset(4, 4),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: Color(0xffA673DE).withOpacity(1),
-                        width: 3,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${_secondsToMinutes(_counter)}',
-                            style: TextStyle(
-                              fontFamily: 'Aero',
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                              fontSize: 22,
-                            ),
+                  Expanded(
+                    child: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        color: Color(0xffFFBEF3),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromARGB(255, 253, 198, 165),
+                            blurRadius: 0,
+                            offset: Offset(4, 4),
                           ),
-                          SizedBox(width: 15),
-                          Flexible(
-                            child: Container(
-                              height: 25,
-                              child: TextButton(
-                                onPressed: () {
-                                  _restartConfirmation(_difficulty);
-                                },
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.0),
+                        ],
+                        border: Border.all(
+                          color: Color(0xffA673DE).withOpacity(1),
+                          width: 3,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${_secondsToMinutes(_counter)}',
+                              style: TextStyle(
+                                fontFamily: 'Aero',
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                                fontSize: 15,
+                              ),
+                            ),
+                            SizedBox(width: 15),
+                            Flexible(
+                              child: Container(
+                                height: 25,
+                                child: TextButton(
+                                  onPressed: () {
+                                    _restartConfirmation(_difficulty);
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
                                     ),
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                      Color(0xffA673DE),
+                                    ),
+                                    elevation:
+                                        MaterialStateProperty.all<double>(5.0),
                                   ),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Color(0xffA673DE),
-                                  ),
-                                  elevation:
-                                      MaterialStateProperty.all<double>(5.0),
-                                ),
-                                child: Text(
-                                  'Restart',
-                                  style: TextStyle(
-                                    fontFamily: 'Catfiles',
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color.fromARGB(255, 255, 255, 255),
+                                  child: Text(
+                                    'Restart',
+                                    style: TextStyle(
+                                      fontFamily: 'Catfiles',
+                                      fontSize: 6,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(
-                    width: 17,
+                    width: 15,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Stack(
-                        children: [
-                          Text(
-                            _difficulty.contains('Easy')
-                                ? 'EASY'
-                                : _difficulty.contains('Medium')
-                                    ? 'MEDIUM'
-                                    : _difficulty.contains('Hard')
-                                        ? 'HARD'
-                                        : '',
-                            style: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 23,
-                              foreground: Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 5
-                                ..color = Color(0xffA673DE),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Stack(
+                          children: [
+                            Text(
+                              _difficulty.contains('Easy')
+                                  ? 'EASY'
+                                  : _difficulty.contains('Medium')
+                                      ? 'MEDIUM'
+                                      : _difficulty.contains('Hard')
+                                          ? 'HARD'
+                                          : '',
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 23,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 5
+                                  ..color = Color(0xffA673DE),
+                              ),
                             ),
-                          ),
-                          Text(
-                            _difficulty.contains('Easy')
-                                ? 'EASY'
-                                : _difficulty.contains('Medium')
-                                    ? 'MEDIUM'
-                                    : _difficulty.contains('Hard')
-                                        ? 'HARD'
-                                        : '',
-                            style: TextStyle(
-                              fontFamily: 'Catfiles',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 23,
-                              color: Colors.white,
+                            Text(
+                              _difficulty.contains('Easy')
+                                  ? 'EASY'
+                                  : _difficulty.contains('Medium')
+                                      ? 'MEDIUM'
+                                      : _difficulty.contains('Hard')
+                                          ? 'HARD'
+                                          : '',
+                              style: TextStyle(
+                                fontFamily: 'Catfiles',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 23,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'Current Highscore: ${_getFormattedHighscore()}',
-                        style: TextStyle(
-                          fontFamily: 'Catfiles',
-                          fontWeight: FontWeight.w200,
-                          fontSize: 10,
-                          color: Color(0xffA673DE),
+                          ],
                         ),
-                      )
-                    ],
-                  )
+                        Text(
+                          'Current Highscore: ${_getFormattedHighscore()}',
+                          style: TextStyle(
+                            fontFamily: 'Catfiles',
+                            fontWeight: FontWeight.w200,
+                            fontSize: 8,
+                            color: Color(0xffA673DE),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 15),
                 ],
               ),
               Expanded(

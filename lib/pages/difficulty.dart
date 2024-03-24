@@ -1,4 +1,5 @@
 import 'package:appdev/pages/game.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +33,8 @@ class DifficultyPopup extends StatelessWidget {
 
   Container _cardDialog(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      width: SizeConfig.safeBlockHorizontal * 80,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -59,7 +61,7 @@ class DifficultyPopup extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Catfiles',
                   fontWeight: FontWeight.w500,
-                  fontSize: 30,
+                  fontSize: 25,
                   shadows: [
                     Shadow(
                       offset: Offset(6, 6),
@@ -77,7 +79,7 @@ class DifficultyPopup extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Catfiles',
                   fontWeight: FontWeight.w500,
-                  fontSize: 30,
+                  fontSize: 25,
                   color: Colors.white,
                 )),
           ]),
@@ -235,7 +237,8 @@ class DifficultyInfoPopup extends StatelessWidget {
 
   Container _difficultyDialog(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      width: SizeConfig.safeBlockHorizontal * 80,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Color(0xffFFBEF3),
@@ -263,7 +266,7 @@ class DifficultyInfoPopup extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Catfiles',
                   fontWeight: FontWeight.w500,
-                  fontSize: 40,
+                  fontSize: SizeConfig.fontSize * 3,
                   shadows: [
                     Shadow(
                       offset: Offset(5.5, 5.5),
@@ -281,7 +284,7 @@ class DifficultyInfoPopup extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Catfiles',
                   fontWeight: FontWeight.w500,
-                  fontSize: 40,
+                  fontSize: SizeConfig.fontSize * 3,
                   color: Color(0xffFFBEF3),
                 )),
           ]),

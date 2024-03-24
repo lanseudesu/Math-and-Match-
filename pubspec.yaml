@@ -44,6 +44,7 @@ dependencies:
   flame_audio: ^2.10.0
   flame: ^1.16.0
   audioplayers: ^5.2.1
+  flutter_screenutil: ^5.9.0
 
 dev_dependencies:
   flutter_test:

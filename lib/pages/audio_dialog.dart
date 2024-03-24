@@ -1,4 +1,5 @@
 import 'package:appdev/models/audio.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flutter/material.dart'; // Import AudioUtil to access volume settings
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter_svg/svg.dart'; // Import FlameAudio for audio control
@@ -11,28 +12,34 @@ class VolumeSettingsDialog extends StatefulWidget {
 class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
   double _soundVolume = AudioUtil.soundVolume;
   double _bgVolume = AudioUtil.bgVolume;
+  double fontSize = SizeConfig.fontSize;
 
   @override
   Widget build(BuildContext context) {
+    double dialogWidth = SizeConfig.screenWidth * 0.8;
+    double dialogHeight = SizeConfig.screenHeight * 0.6;
     return Dialog(
       backgroundColor: Colors.transparent,
       child: SizedBox(
-        height: 500,
+        width: SizeConfig.screenWidth * 0.8,
+        height: SizeConfig.screenHeight * 0.6,
         child: Stack(
           alignment: Alignment.center,
           children: [
             _audioSettings(context),
             Positioned(
-              top: 95,
-              left: 55,
-              right: 55,
+              top: dialogHeight / 2 -
+                  (dialogHeight * 0.30) -
+                  20, // Example top position
+              left: (dialogWidth / 2) - (dialogWidth * 0.33) - 8,
+
               child: Stack(children: [
                 Text('SETTINGS',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Catfiles',
                       fontWeight: FontWeight.w500,
-                      fontSize: 40,
+                      fontSize: SizeConfig.safeBlockHorizontal * 10,
                       shadows: [
                         Shadow(
                           offset: Offset(5.5, 5.5),
@@ -50,7 +57,7 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                     style: TextStyle(
                       fontFamily: 'Catfiles',
                       fontWeight: FontWeight.w500,
-                      fontSize: 40,
+                      fontSize: SizeConfig.safeBlockHorizontal * 10,
                       color: Colors.white,
                     )),
               ]),
@@ -63,7 +70,7 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
 
   Container _audioSettings(BuildContext context) {
     return Container(
-      width: 500,
+      width: SizeConfig.safeBlockHorizontal * 80,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -126,42 +133,46 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                 ),
               ),
               SizedBox(width: 16), // Add spacing between the icon and the text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20,
-                    child: Text(
-                      'SFX VOLUME',
-                      style: TextStyle(
-                        fontFamily: 'Catfiles',
-                        color: Color(0xffA673DE),
-                        fontSize: 15,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 20,
+                      child: Text(
+                        'SFX VOLUME',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          color: Color(0xffA673DE),
+                          fontSize: 15,
+                        ),
                       ),
                     ),
-                  ),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 5,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
-                      thumbColor: Color(0xffA673DE), // Customize thumb shape
-                      overlayColor: Color(0xffA673DE).withOpacity(
-                        0.3,
-                      ), // Color of the overlay when thumb is pressed
-                      activeTrackColor:
-                          Color(0xffA673DE), // Increase the track height
-                      trackShape: CustomTrackShape(), // Use custom track shape
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 5,
+                        thumbShape:
+                            RoundSliderThumbShape(enabledThumbRadius: 8),
+                        thumbColor: Color(0xffA673DE), // Customize thumb shape
+                        overlayColor: Color(0xffA673DE).withOpacity(
+                          0.3,
+                        ), // Color of the overlay when thumb is pressed
+                        activeTrackColor:
+                            Color(0xffA673DE), // Increase the track height
+                        trackShape:
+                            CustomTrackShape(), // Use custom track shape
+                      ),
+                      child: Slider(
+                        value: _soundVolume,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _soundVolume = newValue;
+                          });
+                        },
+                      ),
                     ),
-                    child: Slider(
-                      value: _soundVolume,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _soundVolume = newValue;
-                        });
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -203,112 +214,141 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                 ),
               ),
               SizedBox(width: 16), // Add spacing between the icon and the text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 20,
-                    child: Text(
-                      'MUSIC VOLUME',
-                      style: TextStyle(
-                        fontFamily: 'Catfiles',
-                        color: Color(0xffA673DE),
-                        fontSize: 15,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 20,
+                      child: Text(
+                        'MUSIC VOLUME',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          color: Color(0xffA673DE),
+                          fontSize: 15,
+                        ),
                       ),
                     ),
-                  ),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 5,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
-                      thumbColor: Color(0xffA673DE), // Customize thumb shape
-                      overlayColor: Color(0xffA673DE).withOpacity(
-                        0.3,
-                      ), // Color of the overlay when thumb is pressed
-                      activeTrackColor:
-                          Color(0xffA673DE), // Increase the track height
-                      trackShape: CustomTrackShape(), // Use custom track shape
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 5,
+                        thumbShape:
+                            RoundSliderThumbShape(enabledThumbRadius: 8),
+                        thumbColor: Color(0xffA673DE), // Customize thumb shape
+                        overlayColor: Color(0xffA673DE).withOpacity(
+                          0.3,
+                        ), // Color of the overlay when thumb is pressed
+                        activeTrackColor:
+                            Color(0xffA673DE), // Increase the track height
+                        trackShape:
+                            CustomTrackShape(), // Use custom track shape
+                      ),
+                      child: Slider(
+                        value: _bgVolume,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _bgVolume = newValue;
+                          });
+                        },
+                      ),
                     ),
-                    child: Slider(
-                      value: _bgVolume,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _bgVolume = newValue;
-                        });
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Color(0xff9C51E8)), // Background color
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white), // Text color
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 12), // Button padding
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16), // Button border radius
+          Center(child: LayoutBuilder(
+            builder: (context, constraints) {
+              double fontSize = constraints.maxWidth *
+                  0.05; // Adjust the multiplier as needed
+              double buttonWidth = constraints.maxWidth * 0.3;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xff9C51E8)), // Background color
+                        foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.white), // Text color
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(
+                              horizontal: buttonWidth *
+                                  0.1, // Adjust padding based on button size
+                              vertical: buttonWidth *
+                                  0.08), // Adjust padding based on button size
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                16), // Button border radius
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  child: Text('   CANCEL   ',
-                      style: TextStyle(
+                      child: Text(
+                        '     CANCEL     ',
+                        style: TextStyle(
                           fontFamily: 'Catfiles',
                           fontWeight: FontWeight.w500,
-                          fontSize: 12)),
-                ),
-                SizedBox(width: 20),
-                OutlinedButton(
-                  onPressed: () {
-                    // Save volume settings
-                    AudioUtil.soundVolume = _soundVolume;
-                    AudioUtil.bgVolume = _bgVolume;
-
-                    // Restart background music with the updated volume
-                    FlameAudio.bgm.stop();
-                    FlameAudio.bgm.play('menu.mp3', volume: _bgVolume);
-
-                    Navigator.of(context).pop();
-                  },
-                  style: ButtonStyle(
-                    side: MaterialStateProperty.all<BorderSide>(
-                        BorderSide(color: Color(0xffA673DE))), // Border color
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 12), // Button padding
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16), // Button border radius
+                          fontSize: fontSize,
+                        ),
                       ),
                     ),
                   ),
-                  child: Text('      SAVE      ',
-                      style: TextStyle(
+                  SizedBox(width: 10),
+                  Flexible(
+                    flex: 1,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        // Save volume settings
+                        AudioUtil.soundVolume = _soundVolume;
+                        AudioUtil.bgVolume = _bgVolume;
+
+                        // Restart background music with the updated volume
+                        FlameAudio.bgm.stop();
+                        FlameAudio.bgm.play('menu.mp3', volume: _bgVolume);
+
+                        Navigator.of(context).pop();
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all<BorderSide>(BorderSide(
+                            color: Color(0xffA673DE))), // Border color
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(
+                              horizontal: buttonWidth *
+                                  0.1, // Adjust padding based on button size
+                              vertical: buttonWidth *
+                                  0.08), // Adjust padding based on button size
+                        ),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                16), // Button border radius
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        '        SAVE        ',
+                        style: TextStyle(
                           fontFamily: 'Catfiles',
                           fontWeight: FontWeight.w500,
                           color: Color(0xffA673DE),
-                          fontSize: 12)),
-                ),
-              ],
-            ),
-          ),
+                          fontSize: fontSize,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          )),
         ],
       ),
     );

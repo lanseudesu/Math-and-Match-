@@ -1,4 +1,5 @@
 import 'package:appdev/pages/main_menu.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,9 +12,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context);
     return ChangeNotifierProvider(
       create: (_) => UserState(), // Create an instance of UserState
       child: MaterialApp(
+        title: 'Math and Match',
         home: Menu(),
         debugShowCheckedModeBanner:
             false, // Your Menu widget as the home screen

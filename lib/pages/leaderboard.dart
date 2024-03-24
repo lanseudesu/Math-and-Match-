@@ -1,4 +1,5 @@
 import 'package:appdev/pages/main_menu.dart';
+import 'package:appdev/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:appdev/models/players.dart';
 import 'package:flutter_svg/svg.dart';
@@ -228,12 +229,14 @@ class LeaderboardState extends State<Leaderboard> {
                       Text(
                         '${user.username}',
                         style: GoogleFonts.dmSans(
-                            fontWeight: FontWeight.w800, fontSize: fontSize),
+                            fontWeight: FontWeight.w800,
+                            fontSize: fontSize - 5),
                       ),
                       Text(
                         '${_getScore(user)}',
                         style: GoogleFonts.dmSans(
-                            fontWeight: FontWeight.w900, fontSize: fontSize),
+                            fontWeight: FontWeight.w900,
+                            fontSize: fontSize - 5),
                       ),
                     ],
                   ),
@@ -327,151 +330,154 @@ class LeaderboardState extends State<Leaderboard> {
                   ],
                 )),
               ),
-              Stack(children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 36.0), // Adjust top padding as needed
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(15),
+              SizedBox(
+                child: Stack(children: [
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 36.0), // Adjust top padding as needed
+                      child: Material(
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(15),
+                        child: Container(
+                          width: SizeConfig.blockSizeHorizontal * 80,
+                          height: SizeConfig.blockSizeVertical * 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xff9C51E8).withOpacity(1),
+                                spreadRadius: 0,
+                                blurRadius: 0,
+                                offset: Offset(8, 8),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: Color(0xffFFBEF3).withOpacity(1),
+                              width: 8, // Border width
+                            ),
+                          ),
+                          child: ListView(
+                            padding:
+                                EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+                            children: buildUserList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    child: Center(
                       child: Container(
-                        width: 330,
-                        height: 520,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xff9C51E8).withOpacity(1),
-                              spreadRadius: 0,
-                              blurRadius: 0,
-                              offset: Offset(8, 8),
+                        width: 290,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  currentScoreType = 'Easy';
+                                });
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Color(0xffFFBEF3)),
+                                foregroundColor: MaterialStateProperty.all(
+                                    Color(0xff6C007D)),
+                                shape: MaterialStateProperty.all(
+                                  const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(
+                                          15), // Adjust as needed
+                                      topRight: Radius.circular(
+                                          15), // Adjust as needed
+                                    ),
+                                    side: BorderSide.none, // No border
+                                  ),
+                                ),
+                                elevation: MaterialStateProperty.all(0.0),
+                              ),
+                              child: Text(
+                                'Easy',
+                                style: TextStyle(
+                                  fontFamily: 'Catfiles',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  currentScoreType = 'Medium';
+                                });
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Color(0xffFFBEF3)),
+                                foregroundColor: MaterialStateProperty.all(
+                                    Color(0xff6C007D)),
+                                shape: MaterialStateProperty.all(
+                                  const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(
+                                          15), // Adjust as needed
+                                      topRight: Radius.circular(
+                                          15), // Adjust as needed
+                                    ),
+                                    side: BorderSide.none, // No border
+                                  ),
+                                ),
+                                elevation: MaterialStateProperty.all(0.0),
+                              ),
+                              child: Text(
+                                'Medium',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  currentScoreType = 'Hard';
+                                });
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Color(0xffFFBEF3)),
+                                foregroundColor: MaterialStateProperty.all(
+                                    Color(0xff6C007D)),
+                                shape: MaterialStateProperty.all(
+                                  const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(
+                                          15), // Adjust as needed
+                                      topRight: Radius.circular(
+                                          15), // Adjust as needed
+                                    ),
+                                    side: BorderSide.none, // No border
+                                  ),
+                                ),
+                                elevation: MaterialStateProperty.all(0.0),
+                              ),
+                              child: Text(
+                                'Hard',
+                                style: TextStyle(
+                                    fontFamily: 'Catfiles',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10),
+                              ),
                             ),
                           ],
-                          border: Border.all(
-                            color: Color(0xffFFBEF3).withOpacity(1),
-                            width: 8, // Border width
-                          ),
-                        ),
-                        child: ListView(
-                          padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-                          children: buildUserList(),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  child: Center(
-                    child: Container(
-                      width: 320,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                currentScoreType = 'Easy';
-                              });
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Color(0xffFFBEF3)),
-                              foregroundColor:
-                                  MaterialStateProperty.all(Color(0xff6C007D)),
-                              shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft:
-                                        Radius.circular(15), // Adjust as needed
-                                    topRight:
-                                        Radius.circular(15), // Adjust as needed
-                                  ),
-                                  side: BorderSide.none, // No border
-                                ),
-                              ),
-                              elevation: MaterialStateProperty.all(0.0),
-                            ),
-                            child: Text(
-                              'Easy',
-                              style: TextStyle(
-                                fontFamily: 'Catfiles',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                currentScoreType = 'Medium';
-                              });
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Color(0xffFFBEF3)),
-                              foregroundColor:
-                                  MaterialStateProperty.all(Color(0xff6C007D)),
-                              shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft:
-                                        Radius.circular(15), // Adjust as needed
-                                    topRight:
-                                        Radius.circular(15), // Adjust as needed
-                                  ),
-                                  side: BorderSide.none, // No border
-                                ),
-                              ),
-                              elevation: MaterialStateProperty.all(0.0),
-                            ),
-                            child: Text(
-                              'Medium',
-                              style: TextStyle(
-                                  fontFamily: 'Catfiles',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                currentScoreType = 'Hard';
-                              });
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Color(0xffFFBEF3)),
-                              foregroundColor:
-                                  MaterialStateProperty.all(Color(0xff6C007D)),
-                              shape: MaterialStateProperty.all(
-                                const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft:
-                                        Radius.circular(15), // Adjust as needed
-                                    topRight:
-                                        Radius.circular(15), // Adjust as needed
-                                  ),
-                                  side: BorderSide.none, // No border
-                                ),
-                              ),
-                              elevation: MaterialStateProperty.all(0.0),
-                            ),
-                            child: Text(
-                              'Hard',
-                              style: TextStyle(
-                                  fontFamily: 'Catfiles',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
+                ]),
+              ),
               SizedBox(height: 15),
               Center(
                 child: TextButton(
