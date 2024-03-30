@@ -22,6 +22,7 @@ class LeaderboardState extends State<Leaderboard> {
   @override
   void initState() {
     super.initState();
+    displayedUserList = buildUserList(currentTopN);
     _isMounted = true; // Set _isMounted to true when the widget is mounted
     _loadUsers();
   }
@@ -346,7 +347,7 @@ class LeaderboardState extends State<Leaderboard> {
                         borderRadius: BorderRadius.circular(15),
                         child: Container(
                           width: SizeConfig.blockSizeHorizontal * 80,
-                          height: SizeConfig.blockSizeVertical * 60,
+                          height: SizeConfig.blockSizeVertical * 55,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(15),
@@ -366,7 +367,7 @@ class LeaderboardState extends State<Leaderboard> {
                           child: ListView(
                             padding:
                                 EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-                            children: buildUserList(0),
+                            children: displayedUserList,
                           ),
                         ),
                       ),
