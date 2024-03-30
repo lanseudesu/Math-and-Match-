@@ -16,6 +16,8 @@ class LeaderboardState extends State<Leaderboard> {
   List<Player> users = [];
   String currentScoreType = 'Easy';
   bool _isMounted = false;
+  int currentTopN = 0;
+  List<Widget> displayedUserList = [];
 
   @override
   void initState() {
@@ -78,7 +80,7 @@ class LeaderboardState extends State<Leaderboard> {
     return uniqueUsers.values.toList();
   }
 
-  List<Widget> buildUserList() {
+  List<Widget> buildUserList(int topN) {
     List<Player> uniqueUsers = getUniqueUsersWithHighestScores();
 
     uniqueUsers.sort((a, b) {
@@ -93,6 +95,10 @@ class LeaderboardState extends State<Leaderboard> {
           return 0;
       }
     });
+
+    if (topN > 0) {
+      uniqueUsers = uniqueUsers.take(topN).toList();
+    }
 
     return uniqueUsers
         .asMap()
@@ -263,7 +269,6 @@ class LeaderboardState extends State<Leaderboard> {
         return formatScore(user.easyScore);
       case 'Medium':
         return formatScore(user.mediumScore);
-        ;
       case 'Hard':
         return formatScore(user.hardScore);
       default:
@@ -361,7 +366,7 @@ class LeaderboardState extends State<Leaderboard> {
                           child: ListView(
                             padding:
                                 EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-                            children: buildUserList(),
+                            children: buildUserList(0),
                           ),
                         ),
                       ),
@@ -378,6 +383,8 @@ class LeaderboardState extends State<Leaderboard> {
                               onPressed: () {
                                 setState(() {
                                   currentScoreType = 'Easy';
+                                  displayedUserList =
+                                      buildUserList(currentTopN);
                                 });
                               },
                               style: ButtonStyle(
@@ -411,6 +418,8 @@ class LeaderboardState extends State<Leaderboard> {
                               onPressed: () {
                                 setState(() {
                                   currentScoreType = 'Medium';
+                                  displayedUserList =
+                                      buildUserList(currentTopN);
                                 });
                               },
                               style: ButtonStyle(
@@ -443,6 +452,8 @@ class LeaderboardState extends State<Leaderboard> {
                               onPressed: () {
                                 setState(() {
                                   currentScoreType = 'Hard';
+                                  displayedUserList =
+                                      buildUserList(currentTopN);
                                 });
                               },
                               style: ButtonStyle(
@@ -480,29 +491,89 @@ class LeaderboardState extends State<Leaderboard> {
               ),
               SizedBox(height: 15),
               Center(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => Menu()));
-                  },
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0))),
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
-                  ),
-                  child: Text(
-                    'Close',
-                    style: TextStyle(
-                      fontFamily: 'Catfiles',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(width: 5),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          displayedUserList = buildUserList(0);
+                          currentTopN = 0; // Display all users
+                        });
+                      },
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0))),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                      ),
+                      child: Text(
+                        '    ALL    ',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          displayedUserList = buildUserList(10);
+                          currentTopN = 10;
+                        });
+                      },
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0))),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                      ),
+                      child: Text(
+                        '  TOP 10  ',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          displayedUserList = buildUserList(5);
+                          currentTopN = 5;
+                        });
+                      },
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0))),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                      ),
+                      child: Text(
+                        '  TOP 5  ',
+                        style: TextStyle(
+                          fontFamily: 'Catfiles',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                  ],
                 ),
-              )
+              ),
             ],
           ),
         ),
