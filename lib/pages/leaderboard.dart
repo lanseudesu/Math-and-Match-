@@ -15,7 +15,8 @@ class Leaderboard extends StatefulWidget {
 class LeaderboardState extends State<Leaderboard> {
   List<Player> users = [];
   String currentScoreType = 'Easy';
-  bool _isMounted = false;
+  bool _isMounted =
+      false; //indicator when widget is mounted or disposed for loading users
   int currentTopN = 0;
   List<Widget> displayedUserList = [];
 
@@ -23,15 +24,16 @@ class LeaderboardState extends State<Leaderboard> {
   void initState() {
     super.initState();
     displayedUserList = buildUserList(currentTopN);
-    _isMounted = true; // Set _isMounted to true when the widget is mounted
+    _isMounted = true; //set to true for function _loadUsers
     _loadUsers();
   }
 
   void _loadUsers() {
+    //fetch data from database
     Player.fetchData().then((data) {
       if (_isMounted) {
         setState(() {
-          users = data;
+          users = data; //fetched data is given to users
         });
       }
     });
@@ -39,11 +41,12 @@ class LeaderboardState extends State<Leaderboard> {
 
   @override
   void dispose() {
-    _isMounted = false; // Set _isMounted to false when the widget is disposed
+    _isMounted = false;
     super.dispose();
   }
 
   List<Player> getUniqueUsersWithHighestScores() {
+    //only get the highest scores from the same username
     Map<String, Player> uniqueUsers = {};
 
     for (Player user in users) {
@@ -52,6 +55,7 @@ class LeaderboardState extends State<Leaderboard> {
       } else {
         Player existingUser = uniqueUsers[user.username]!;
         if (user.easyScore > existingUser.easyScore) {
+          //seperates difficulty scores of unique users
           uniqueUsers[user.username] = Player(
             username: user.username,
             easyScore: user.easyScore,
@@ -85,6 +89,7 @@ class LeaderboardState extends State<Leaderboard> {
     List<Player> uniqueUsers = getUniqueUsersWithHighestScores();
 
     uniqueUsers.sort((a, b) {
+      //sort in descending order
       switch (currentScoreType) {
         case 'Easy':
           return b.easyScore.compareTo(a.easyScore);
@@ -104,21 +109,19 @@ class LeaderboardState extends State<Leaderboard> {
     return uniqueUsers
         .asMap()
         .map((index, user) {
-          late Widget
-              leadingWidget; // Declare leadingWidget as a late variable to delay its initialization
+          late Widget leadingWidget;
           late Color backgroundColor;
           late double tileHeight;
           late double fontSize;
 
           switch (index) {
-            case 0:
+            case 0: //top 1 design
               leadingWidget = Container(
                 width: 43,
                 height: 43,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.fromARGB(255, 255, 180, 18)
-                      .withOpacity(0.8), // Yellow circle for the first item
+                  color: Color.fromARGB(255, 255, 180, 18).withOpacity(0.8),
                 ),
                 alignment: Alignment.center,
                 child: Text('${index + 1}',
@@ -128,19 +131,18 @@ class LeaderboardState extends State<Leaderboard> {
                         color: Color.fromARGB(255, 119, 56, 4),
                         fontSize: 18)),
               );
-              backgroundColor = Color.fromARGB(255, 255, 238, 160)
-                  .withOpacity(0.8); // Yellow background for the first item
+              backgroundColor =
+                  Color.fromARGB(255, 255, 238, 160).withOpacity(0.8);
               tileHeight = 62;
               fontSize = 18;
               break;
-            case 1:
+            case 1: //top 2 design
               leadingWidget = Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.fromARGB(
-                      255, 226, 226, 226), // Grey circle for the second item
+                  color: Color.fromARGB(255, 226, 226, 226),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -149,23 +151,20 @@ class LeaderboardState extends State<Leaderboard> {
                       fontFamily: 'Catfiles',
                       fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 65, 65, 65),
-                      fontSize:
-                          16), // Adjust font size and color for the number
+                      fontSize: 16),
                 ),
               );
-              backgroundColor = Color.fromARGB(
-                  255, 197, 197, 197); // Grey background for the second item
+              backgroundColor = Color.fromARGB(255, 197, 197, 197);
               tileHeight = 57;
               fontSize = 16;
               break;
-            case 2:
+            case 2: //top 3 design
               leadingWidget = Container(
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.fromARGB(
-                      255, 153, 91, 69), // Brown circle for the third item
+                  color: Color.fromARGB(255, 153, 91, 69),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -174,23 +173,20 @@ class LeaderboardState extends State<Leaderboard> {
                       fontFamily: 'Catfiles',
                       fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 255, 183, 154),
-                      fontSize:
-                          16), // Adjust font size and color for the number
+                      fontSize: 16),
                 ),
               );
-              backgroundColor = Color.fromARGB(
-                  255, 214, 142, 115); // Brown background for the third item
+              backgroundColor = Color.fromARGB(255, 214, 142, 115);
               tileHeight = 57;
               fontSize = 16;
               break;
-            default:
+            default: //design for the rest
               leadingWidget = Container(
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.fromARGB(
-                      255, 199, 155, 243), // Brown circle for the third item
+                  color: Color.fromARGB(255, 199, 155, 243),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -199,34 +195,30 @@ class LeaderboardState extends State<Leaderboard> {
                       fontFamily: 'Catfiles',
                       fontWeight: FontWeight.w500,
                       color: Color.fromARGB(255, 82, 33, 131),
-                      fontSize:
-                          16), // Adjust font size and color for the number
+                      fontSize: 16),
                 ),
               );
               backgroundColor =
                   Color.fromARGB(255, 146, 81, 199).withOpacity(0.3);
               tileHeight = 53;
-              fontSize = 14; // Transparent background for the rest of the items
+              fontSize = 14;
           }
 
           return MapEntry(
+            //list design
             index,
             Container(
-              margin:
-                  EdgeInsets.symmetric(vertical: 4.0), // Add vertical spacing
+              margin: EdgeInsets.symmetric(vertical: 4.0),
               decoration: BoxDecoration(
-                color:
-                    backgroundColor, // Apply background color to the entire ListTile
-                borderRadius:
-                    BorderRadius.circular(10.0), // Circular border radius
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(10.0),
               ),
               child: Container(
                 height: tileHeight,
                 child: ListTile(
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                   leading: Container(
-                    width:
-                        40, // Adjust the width of the leading widget as needed
+                    width: 40,
                     height: 40,
                     child: Center(child: leadingWidget),
                   ),
@@ -257,6 +249,7 @@ class LeaderboardState extends State<Leaderboard> {
   }
 
   String formatScore(int score) {
+    //seconds to 00:00 format
     int minutes = (score ~/ 60);
     int seconds = (score % 60);
     String minutesStr = minutes.toString().padLeft(2, '0');
@@ -265,6 +258,7 @@ class LeaderboardState extends State<Leaderboard> {
   }
 
   String _getScore(Player user) {
+    //seperate scores from each difficulty
     switch (currentScoreType) {
       case 'Easy':
         return formatScore(user.easyScore);
@@ -340,8 +334,7 @@ class LeaderboardState extends State<Leaderboard> {
                 child: Stack(children: [
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 36.0), // Adjust top padding as needed
+                      padding: const EdgeInsets.only(top: 36.0),
                       child: Material(
                         elevation: 4,
                         borderRadius: BorderRadius.circular(15),
@@ -361,7 +354,7 @@ class LeaderboardState extends State<Leaderboard> {
                             ],
                             border: Border.all(
                               color: Color(0xffFFBEF3).withOpacity(1),
-                              width: 8, // Border width
+                              width: 8,
                             ),
                           ),
                           child: ListView(
@@ -396,12 +389,10 @@ class LeaderboardState extends State<Leaderboard> {
                                 shape: MaterialStateProperty.all(
                                   const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(
-                                          15), // Adjust as needed
-                                      topRight: Radius.circular(
-                                          15), // Adjust as needed
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
                                     ),
-                                    side: BorderSide.none, // No border
+                                    side: BorderSide.none,
                                   ),
                                 ),
                                 elevation: MaterialStateProperty.all(0.0),
@@ -431,12 +422,10 @@ class LeaderboardState extends State<Leaderboard> {
                                 shape: MaterialStateProperty.all(
                                   const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(
-                                          15), // Adjust as needed
-                                      topRight: Radius.circular(
-                                          15), // Adjust as needed
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
                                     ),
-                                    side: BorderSide.none, // No border
+                                    side: BorderSide.none,
                                   ),
                                 ),
                                 elevation: MaterialStateProperty.all(0.0),
@@ -465,12 +454,10 @@ class LeaderboardState extends State<Leaderboard> {
                                 shape: MaterialStateProperty.all(
                                   const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(
-                                          15), // Adjust as needed
-                                      topRight: Radius.circular(
-                                          15), // Adjust as needed
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
                                     ),
-                                    side: BorderSide.none, // No border
+                                    side: BorderSide.none,
                                   ),
                                 ),
                                 elevation: MaterialStateProperty.all(0.0),
@@ -500,7 +487,7 @@ class LeaderboardState extends State<Leaderboard> {
                       onPressed: () {
                         setState(() {
                           displayedUserList = buildUserList(0);
-                          currentTopN = 0; // Display all users
+                          currentTopN = 0; //display all users
                         });
                       },
                       style: ButtonStyle(
@@ -524,7 +511,8 @@ class LeaderboardState extends State<Leaderboard> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          displayedUserList = buildUserList(10);
+                          displayedUserList =
+                              buildUserList(10); //display top 10 scores
                           currentTopN = 10;
                         });
                       },
@@ -549,7 +537,8 @@ class LeaderboardState extends State<Leaderboard> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          displayedUserList = buildUserList(5);
+                          displayedUserList =
+                              buildUserList(5); //display top 5 scores
                           currentTopN = 5;
                         });
                       },

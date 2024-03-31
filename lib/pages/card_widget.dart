@@ -5,6 +5,8 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+//card animations
+
 class CardWidget extends StatefulWidget {
   final Cards card;
   final Function(Cards)? onTap;
@@ -72,10 +74,10 @@ class _CardWidgetState extends State<CardWidget>
         onTap: () {
           if (!_isAnimating) {
             if (_status == AnimationStatus.completed) {
-              // Reverse animation if it's already completed
+              //reverse animation if it's already completed
               _controller.reverse();
             } else {
-              // Start animation if it's not already playing
+              //start animation if it's not already playing
               _controller.forward();
               FlameAudio.play('flip.mp3', volume: AudioUtil.soundVolume * 13);
             }
@@ -83,7 +85,7 @@ class _CardWidgetState extends State<CardWidget>
               widget.onTap!(widget.card);
             }
           } else {
-            // Reverse animation immediately if another card is tapped
+            //reverse animation immediately if another card is tapped
             _controller.reverse();
             if (widget.onTap != null && mounted) {
               widget.onTap!(widget.card);
@@ -127,6 +129,7 @@ class _CardWidgetState extends State<CardWidget>
 
   @override
   void dispose() {
+    //makes sure all animation is disposed
     _disposed = true;
     _controller.removeListener(_listenerFunction);
     _controller.removeStatusListener(_statusListenerFunction);

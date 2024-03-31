@@ -1,6 +1,9 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart'
+    as http; //allows doGet and doPost functions to happen
 import 'package:flutter/material.dart';
+
+//fetching and adding data to database
 
 class UserProvider extends ChangeNotifier {
   Player? loggedInUser;
@@ -34,6 +37,7 @@ class Player {
   }
 
   static Future<List<Player>> fetchData() async {
+    //doGet (fetch data from db)
     final Uri uri = Uri.parse(
         'https://script.google.com/macros/s/AKfycby4o7tzoVTP1FDQUPq8GJEQQFTfFGsGn3UQEEZttDxDeCV0lupWYKQZvis7UKswh-Q7nA/exec');
     try {
@@ -51,7 +55,11 @@ class Player {
   }
 
   static Future<void> addUserData(
-      String username, int easyScore, int mediumScore, int hardScore) async {
+      //doPost (add data in db)
+      String username,
+      int easyScore,
+      int mediumScore,
+      int hardScore) async {
     final Uri uri = Uri.parse(
         'https://script.google.com/macros/s/AKfycby4o7tzoVTP1FDQUPq8GJEQQFTfFGsGn3UQEEZttDxDeCV0lupWYKQZvis7UKswh-Q7nA/exec');
     final Map<String, dynamic> data = {
@@ -64,7 +72,7 @@ class Player {
     try {
       final response = await http.post(uri, body: data);
       if (response.statusCode == 302) {
-        // Manually handle redirection
+        //manually handle redirection
         final redirectUri = response.headers['location'];
         if (redirectUri != null) {
           final redirectResponse =

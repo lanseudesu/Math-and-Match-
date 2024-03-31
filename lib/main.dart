@@ -14,12 +14,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig.init(context);
     return ChangeNotifierProvider(
-      create: (_) => UserState(), // Create an instance of UserState
+      create: (_) => UserState(), //userstate for loggedin users
       child: MaterialApp(
         title: 'Math and Match',
         home: Menu(),
-        debugShowCheckedModeBanner:
-            false, // Your Menu widget as the home screen
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

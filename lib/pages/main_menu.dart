@@ -35,7 +35,7 @@ class _MenuState extends State<Menu> {
     ],
     border: Border.all(
       color: Color(0xffFFBEF3).withOpacity(1),
-      width: 8, // Border width
+      width: 8,
     ),
   );
 
@@ -45,7 +45,7 @@ class _MenuState extends State<Menu> {
 
     initializeSharedPreferences();
     FlameAudio.bgm.initialize();
-    FlameAudio.bgm.play('menu.mp3', volume: AudioUtil.bgVolume);
+    FlameAudio.bgm.play('menu.mp3', volume: AudioUtil.bgVolume); //bg music
   }
 
   Future<void> initializeSharedPreferences() async {
@@ -55,7 +55,7 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onBackPressed,
+      onWillPop: _onBackPressed, //back button function
       child:
           Scaffold(body: Consumer<UserState>(builder: (context, userState, _) {
         String? loggedInUser = userState.loggedInUser;
@@ -148,7 +148,7 @@ class _MenuState extends State<Menu> {
                 onPressed: () {
                   setState(() {
                     Provider.of<UserState>(context, listen: false)
-                        .setLoggedInUser(null); //log out current user
+                        .setLoggedInUser(null); //log-out current user
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -180,7 +180,7 @@ class _MenuState extends State<Menu> {
     Provider.of<UserState>(context, listen: false).setLoggedInUser(username);
   }
 
-  // Method to show sign-up dialog
+  //sign-up dialog
   Future<void> _showSignUpDialog(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final TextEditingController usernameController = TextEditingController();
@@ -189,8 +189,7 @@ class _MenuState extends State<Menu> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        double dialogWidth =
-            MediaQuery.of(context).size.width * 0.8; // Adjust as needed
+        double dialogWidth = MediaQuery.of(context).size.width * 0.8;
 
         return Dialog(
           insetPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 25.0),
@@ -299,7 +298,7 @@ class _MenuState extends State<Menu> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context); // Close dialog
+                        Navigator.pop(context);
                       },
                       style: ButtonStyle(
                         backgroundColor:
@@ -331,6 +330,7 @@ class _MenuState extends State<Menu> {
                         final existingUser =
                             prefs.getString(usernameController.text);
                         if (existingUser != null) {
+                          //username alr exists
                           showDialog(
                             context: context,
                             builder: (context) => Dialog(
@@ -353,7 +353,7 @@ class _MenuState extends State<Menu> {
                           Player.addUserData(usernameController.text, 0, 0, 0);
                           Provider.of<UserState>(context, listen: false)
                               .setLoggedInUser(usernameController.text);
-                          Navigator.pop(context); // Close dialog
+                          Navigator.pop(context);
                         }
                       },
                       style: ButtonStyle(
@@ -392,6 +392,7 @@ class _MenuState extends State<Menu> {
     );
   }
 
+  //login dialog
   Future<void> _showLoginDialog(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final TextEditingController usernameController = TextEditingController();
@@ -461,8 +462,8 @@ class _MenuState extends State<Menu> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                           borderSide: BorderSide(
-                            color: Color(0xff9c51e8), // Change the border color
-                            width: 2.0, // Change the border width
+                            color: Color(0xff9c51e8),
+                            width: 2.0,
                           ),
                         ),
                       ),
@@ -488,8 +489,8 @@ class _MenuState extends State<Menu> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                           borderSide: BorderSide(
-                            color: Color(0xff9c51e8), // Change the border color
-                            width: 2.0, // Change the border width
+                            color: Color(0xff9c51e8),
+                            width: 2.0,
                           ),
                         ),
                       ),
@@ -504,24 +505,22 @@ class _MenuState extends State<Menu> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context); // Close dialog
+                            Navigator.pop(context);
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
-                                Color(0xff9C51E8)), // Background color
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                                Colors.white), // Text color
+                                Color(0xff9C51E8)),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
                             padding:
                                 MaterialStateProperty.all<EdgeInsetsGeometry>(
                               EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 12), // Button padding
+                                  horizontal: 15, vertical: 12),
                             ),
                             shape: MaterialStateProperty.all<
                                 RoundedRectangleBorder>(
                               RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    16), // Button border radius
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                           ),
@@ -537,7 +536,7 @@ class _MenuState extends State<Menu> {
                             final savedPassword =
                                 prefs.getString(usernameController.text);
                             if (savedPassword == null) {
-                              // Account does not exist
+                              //acc does not exist
                               showDialog(
                                 context: context,
                                 builder: (context) => Dialog(
@@ -553,12 +552,12 @@ class _MenuState extends State<Menu> {
                               );
                             } else if (savedPassword ==
                                 passwordController.text) {
-                              // Successful login
+                              //successful login
                               Provider.of<UserState>(context, listen: false)
                                   .setLoggedInUser(usernameController.text);
-                              Navigator.pop(context); // Close dialog
+                              Navigator.pop(context);
                             } else {
-                              // Invalid password
+                              //invalid password
                               showDialog(
                                 context: context,
                                 builder: (context) => Dialog(
@@ -576,19 +575,16 @@ class _MenuState extends State<Menu> {
                           },
                           style: ButtonStyle(
                             side: MaterialStateProperty.all<BorderSide>(
-                                BorderSide(
-                                    color: Color(0xffA673DE))), // Border color
+                                BorderSide(color: Color(0xffA673DE))),
                             padding:
                                 MaterialStateProperty.all<EdgeInsetsGeometry>(
                               EdgeInsets.symmetric(
-                                  horizontal: 15,
-                                  vertical: 12), // Button padding
+                                  horizontal: 15, vertical: 12),
                             ),
                             shape: MaterialStateProperty.all<
                                 RoundedRectangleBorder>(
                               RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    16), // Button border radius
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                           ),
@@ -608,22 +604,20 @@ class _MenuState extends State<Menu> {
   }
 
   Container _okay(BuildContext context) {
+    //okay dialog
     return Container(
       width: 100,
       child: TextButton(
         onPressed: () => Navigator.pop(context),
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(
-              Color(0xffFF52A4)), // Background color
-          foregroundColor:
-              MaterialStateProperty.all<Color>(Colors.white), // Text color
+          backgroundColor: MaterialStateProperty.all<Color>(Color(0xffFF52A4)),
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
           padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-            EdgeInsets.symmetric(
-                horizontal: 15, vertical: 12), // Button padding
+            EdgeInsets.symmetric(horizontal: 15, vertical: 12),
           ),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16), // Button border radius
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
         ),
@@ -638,6 +632,7 @@ class _MenuState extends State<Menu> {
   }
 
   Future<void> _showDifficultyDialog(BuildContext context) async {
+    //difficulty dialog
     final String? difficulty = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -651,6 +646,7 @@ class _MenuState extends State<Menu> {
   }
 
   Column _menuButtons() {
+    //menu buttons
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -692,7 +688,8 @@ class _MenuState extends State<Menu> {
                   ),
                 ),
                 onPressed: () {
-                  if (Provider.of<UserState>(context, listen: false)
+                  if (Provider.of<UserState>(context,
+                              listen: false) //not currently logged in
                           .loggedInUser ==
                       null) {
                     showDialog(
@@ -980,7 +977,7 @@ class _MenuState extends State<Menu> {
               height: 45,
               child: TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context);
                 },
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -1062,6 +1059,7 @@ class _MenuState extends State<Menu> {
   }
 
   Future<bool> _onBackPressed() async {
+    //dialog when back & quit button is pressed
     return await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -1124,8 +1122,7 @@ class _MenuState extends State<Menu> {
                       SizedBox(height: 10),
                       Center(
                           child: LayoutBuilder(builder: (context, constraints) {
-                        double fontSize = constraints.maxWidth *
-                            0.05; // Adjust the multiplier as needed
+                        double fontSize = constraints.maxWidth * 0.05;
                         double buttonWidth = constraints.maxWidth * 0.3;
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,

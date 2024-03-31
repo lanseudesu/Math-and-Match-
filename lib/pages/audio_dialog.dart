@@ -1,8 +1,10 @@
 import 'package:appdev/models/audio.dart';
 import 'package:appdev/utils/size_config.dart';
-import 'package:flutter/material.dart'; // Import AudioUtil to access volume settings
+import 'package:flutter/material.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:flutter_svg/svg.dart'; // Import FlameAudio for audio control
+import 'package:flutter_svg/svg.dart';
+
+//audio settings in main menu
 
 class VolumeSettingsDialog extends StatefulWidget {
   @override
@@ -28,11 +30,8 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
           children: [
             _audioSettings(context),
             Positioned(
-              top: dialogHeight / 2 -
-                  (dialogHeight * 0.30) -
-                  20, // Example top position
+              top: dialogHeight / 2 - (dialogHeight * 0.30) - 20,
               left: (dialogWidth / 2) - (dialogWidth * 0.33) - 8,
-
               child: Stack(children: [
                 Text('SETTINGS',
                     textAlign: TextAlign.center,
@@ -86,7 +85,7 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
         ],
         border: Border.all(
           color: Color(0xffFFBEF3).withOpacity(1),
-          width: 8, // Border width
+          width: 8,
         ),
       ),
       child: Column(
@@ -96,43 +95,37 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
             height: 10,
           ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment
-                .start, // Align children at their start positions
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                // Adjust alignment and padding here
-                width: 40, // Adjust width as needed
-                height: 40, // Adjust height as needed
+                width: 40,
+                height: 40,
                 child: SizedBox(
-                  width: 40, // Match the width of the container
-                  height: 40, // Match the height of the container
+                  width: 40,
+                  height: 40,
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color:
-                          Color(0xffFFBEF3), // Shape of the container (circle)
+                      color: Color(0xffFFBEF3),
                       border: Border.all(
-                        color: Color(0xffFFBEF3), // Border color
-                        width: 3, // Border width
+                        color: Color(0xffFFBEF3),
+                        width: 3,
                       ),
                     ),
                     child: Padding(
-                      padding:
-                          EdgeInsets.all(5), // Padding inside the container
+                      padding: EdgeInsets.all(5),
                       child: SvgPicture.asset(
                           _soundVolume == 0
-                              ? 'assets/icons/sfx_muted.svg' // Path when sound is muted
-                              : 'assets/icons/sfx_volume.svg', // Default path // Replace with your SVG file path
-                          width: 28, // Adjust width as needed
+                              ? 'assets/icons/sfx_muted.svg' //img when sfx is muted
+                              : 'assets/icons/sfx_volume.svg', //default img for sfx
+                          width: 28,
                           height: 28,
-                          color: Color.fromARGB(
-                              255, 129, 65, 192) // Adjust height as needed
-                          ),
+                          color: Color.fromARGB(255, 129, 65, 192)),
                     ),
                   ),
                 ),
               ),
-              SizedBox(width: 16), // Add spacing between the icon and the text
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,14 +146,12 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                         trackHeight: 5,
                         thumbShape:
                             RoundSliderThumbShape(enabledThumbRadius: 8),
-                        thumbColor: Color(0xffA673DE), // Customize thumb shape
+                        thumbColor: Color(0xffA673DE),
                         overlayColor: Color(0xffA673DE).withOpacity(
                           0.3,
-                        ), // Color of the overlay when thumb is pressed
-                        activeTrackColor:
-                            Color(0xffA673DE), // Increase the track height
-                        trackShape:
-                            CustomTrackShape(), // Use custom track shape
+                        ),
+                        activeTrackColor: Color(0xffA673DE),
+                        trackShape: CustomTrackShape(),
                       ),
                       child: Slider(
                         value: _soundVolume,
@@ -177,43 +168,37 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
             ],
           ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment
-                .start, // Align children at their start positions
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                // Adjust alignment and padding here
-                width: 40, // Adjust width as needed
-                height: 40, // Adjust height as needed
+                width: 40,
+                height: 40,
                 child: SizedBox(
-                  width: 40, // Match the width of the container
-                  height: 40, // Match the height of the container
+                  width: 40,
+                  height: 40,
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color:
-                          Color(0xffFFBEF3), // Shape of the container (circle)
+                      color: Color(0xffFFBEF3),
                       border: Border.all(
-                        color: Color(0xffFFBEF3), // Border color
-                        width: 3, // Border width
+                        color: Color(0xffFFBEF3),
+                        width: 3,
                       ),
                     ),
                     child: Padding(
-                      padding:
-                          EdgeInsets.all(5), // Padding inside the container
+                      padding: EdgeInsets.all(5),
                       child: SvgPicture.asset(
                           _bgVolume == 0
-                              ? 'assets/icons/bg_muted.svg' // Path when sound is muted
-                              : 'assets/icons/bg_volume.svg', // Replace with your SVG file path
-                          width: 28, // Adjust width as needed
+                              ? 'assets/icons/bg_muted.svg' //bg muted image
+                              : 'assets/icons/bg_volume.svg', //default bg music image
+                          width: 28,
                           height: 28,
-                          color: Color.fromARGB(
-                              255, 129, 65, 192) // Adjust height as needed
-                          ),
+                          color: Color.fromARGB(255, 129, 65, 192)),
                     ),
                   ),
                 ),
               ),
-              SizedBox(width: 16), // Add spacing between the icon and the text
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,14 +219,12 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                         trackHeight: 5,
                         thumbShape:
                             RoundSliderThumbShape(enabledThumbRadius: 8),
-                        thumbColor: Color(0xffA673DE), // Customize thumb shape
+                        thumbColor: Color(0xffA673DE),
                         overlayColor: Color(0xffA673DE).withOpacity(
                           0.3,
-                        ), // Color of the overlay when thumb is pressed
-                        activeTrackColor:
-                            Color(0xffA673DE), // Increase the track height
-                        trackShape:
-                            CustomTrackShape(), // Use custom track shape
+                        ),
+                        activeTrackColor: Color(0xffA673DE),
+                        trackShape: CustomTrackShape(),
                       ),
                       child: Slider(
                         value: _bgVolume,
@@ -259,8 +242,7 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
           ),
           Center(child: LayoutBuilder(
             builder: (context, constraints) {
-              double fontSize = constraints.maxWidth *
-                  0.05; // Adjust the multiplier as needed
+              double fontSize = constraints.maxWidth * 0.05;
               double buttonWidth = constraints.maxWidth * 0.3;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -272,22 +254,19 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                         Navigator.of(context).pop();
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color(0xff9C51E8)), // Background color
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white), // Text color
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xff9C51E8)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
                         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                           EdgeInsets.symmetric(
-                              horizontal: buttonWidth *
-                                  0.1, // Adjust padding based on button size
-                              vertical: buttonWidth *
-                                  0.08), // Adjust padding based on button size
+                              horizontal: buttonWidth * 0.1,
+                              vertical: buttonWidth * 0.08),
                         ),
                         shape:
                             MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                16), // Button border radius
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
@@ -306,31 +285,28 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
                     flex: 1,
                     child: OutlinedButton(
                       onPressed: () {
-                        // Save volume settings
+                        //save volume settings
                         AudioUtil.soundVolume = _soundVolume;
                         AudioUtil.bgVolume = _bgVolume;
 
-                        // Restart background music with the updated volume
+                        //restart background music with the updated volume
                         FlameAudio.bgm.stop();
                         FlameAudio.bgm.play('menu.mp3', volume: _bgVolume);
 
                         Navigator.of(context).pop();
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all<BorderSide>(BorderSide(
-                            color: Color(0xffA673DE))), // Border color
+                        side: MaterialStateProperty.all<BorderSide>(
+                            BorderSide(color: Color(0xffA673DE))),
                         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                           EdgeInsets.symmetric(
-                              horizontal: buttonWidth *
-                                  0.1, // Adjust padding based on button size
-                              vertical: buttonWidth *
-                                  0.08), // Adjust padding based on button size
+                              horizontal: buttonWidth * 0.1,
+                              vertical: buttonWidth * 0.08),
                         ),
                         shape:
                             MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                16), // Button border radius
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
@@ -356,6 +332,7 @@ class _VolumeSettingsDialogState extends State<VolumeSettingsDialog> {
 }
 
 class CustomTrackShape extends RoundedRectSliderTrackShape {
+  //for volume slider custom shape
   Rect getPreferredRect({
     required RenderBox parentBox,
     Offset offset = Offset.zero,

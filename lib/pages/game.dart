@@ -225,7 +225,7 @@ class _GameState extends State<Game> {
         String loggedInUser =
             Provider.of<UserState>(context, listen: false).loggedInUser ?? '';
 
-        //saveing of score to db
+        //saving of score to db
         if (difficulty == 'Easy') {
           try {
             //fetch player data
@@ -613,8 +613,7 @@ class _GameState extends State<Game> {
                       SizedBox(height: 10),
                       Center(
                         child: LayoutBuilder(builder: (context, constraints) {
-                          double fontSize = constraints.maxWidth *
-                              0.05; // Adjust the multiplier as needed
+                          double fontSize = constraints.maxWidth * 0.05;
                           double buttonWidth = constraints.maxWidth * 0.4;
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -639,8 +638,7 @@ class _GameState extends State<Game> {
                                     padding: MaterialStateProperty.all<
                                         EdgeInsetsGeometry>(
                                       EdgeInsets.symmetric(
-                                          horizontal: buttonWidth *
-                                              0.1, // Adjust padding based on button size
+                                          horizontal: buttonWidth * 0.1,
                                           vertical: buttonWidth * 0.08),
                                     ),
                                     shape: MaterialStateProperty.all<
@@ -673,8 +671,7 @@ class _GameState extends State<Game> {
                                     padding: MaterialStateProperty.all<
                                         EdgeInsetsGeometry>(
                                       EdgeInsets.symmetric(
-                                          horizontal: buttonWidth *
-                                              0.1, // Adjust padding based on button size
+                                          horizontal: buttonWidth * 0.1,
                                           vertical: buttonWidth * 0.08),
                                     ),
                                     shape: MaterialStateProperty.all<
@@ -699,8 +696,7 @@ class _GameState extends State<Game> {
                     ]),
                   ),
                   Positioned(
-                      top: (SizeConfig.safeBlockVertical * 2 + 5) -
-                          20, // Example top position
+                      top: (SizeConfig.safeBlockVertical * 2 + 5) - 20,
                       left: SizeConfig.safeBlockHorizontal * 15 - 10,
                       child: Stack(
                         children: [
@@ -733,7 +729,6 @@ class _GameState extends State<Game> {
   }
 
   Future<int?> _showCongratulationsDialog() async {
-    // Ensure SizeConfig is initialized properly
     double dialogWidth = MediaQuery.of(context).size.width * 0.8;
     double dialogHeight = MediaQuery.of(context).size.height * 0.6;
 
@@ -835,8 +830,7 @@ class _GameState extends State<Game> {
                                         padding: MaterialStateProperty.all<
                                             EdgeInsetsGeometry>(
                                           EdgeInsets.symmetric(
-                                              horizontal: buttonWidth *
-                                                  0.1, // Adjust padding based on button size
+                                              horizontal: buttonWidth * 0.1,
                                               vertical: buttonWidth * 0.08),
                                         ),
                                         shape: MaterialStateProperty.all<
@@ -873,8 +867,7 @@ class _GameState extends State<Game> {
                                         padding: MaterialStateProperty.all<
                                             EdgeInsetsGeometry>(
                                           EdgeInsets.symmetric(
-                                              horizontal: buttonWidth *
-                                                  0.1, // Adjust padding based on button size
+                                              horizontal: buttonWidth * 0.1,
                                               vertical: buttonWidth * 0.08),
                                         ),
                                         shape: MaterialStateProperty.all<
@@ -937,9 +930,7 @@ class _GameState extends State<Game> {
                     ),
                   ),
                   Positioned(
-                    top: dialogHeight / 2 -
-                        (dialogHeight * 0.3) -
-                        28, // Example top position
+                    top: dialogHeight / 2 - (dialogHeight * 0.3) - 28,
                     left: (dialogWidth / 2) - (dialogWidth * 0.38) - 5,
                     child: Stack(
                       children: [

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+//difficulty pop-ups
+
 class DifficultyPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -41,15 +43,15 @@ class DifficultyPopup extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Color(0xff9C51E8), // Shadow color
-            spreadRadius: 0, // Spread radius
-            blurRadius: 0, // Blur radius
-            offset: Offset(8, 8), // Custom offset (horizontal, vertical)
+            color: Color(0xff9C51E8),
+            spreadRadius: 0,
+            blurRadius: 0,
+            offset: Offset(8, 8),
           ),
         ],
         border: Border.all(
-          color: Color(0xffFFBEF3).withOpacity(1), // Border color
-          width: 8, // Border width
+          color: Color(0xffFFBEF3).withOpacity(1),
+          width: 8,
         ),
       ),
       child: Column(
@@ -253,7 +255,7 @@ class DifficultyInfoPopup extends StatelessWidget {
         ],
         border: Border.all(
           color: Color(0xffFF52A4).withOpacity(1),
-          width: 8, // Border width
+          width: 8,
         ),
       ),
       child: Column(
@@ -327,7 +329,6 @@ class DifficultyInfoPopup extends StatelessWidget {
   }
 
   String _getDifficultyInfo(String difficulty) {
-    // Add logic to return the information based on the selected difficulty
     switch (difficulty) {
       case 'Easy':
         return 'Simple addition and subtraction equations.\n4x4 grid totaling 16 cards\n5 Minutes timer';

@@ -1,3 +1,5 @@
+//cards design and pairings
+
 class Cards {
   final String imagePaths;
   final int id;
@@ -19,9 +21,9 @@ List<Cards> getRandomCards(int max, {int start = 0, int? end}) {
   assert(max % 2 == 0 && max ~/ 2 <= imagePaths.length);
 
   List<Cards> cards = [];
-  // Limit the loop to the specified start and end indices
+  //limit the loop to the specified start and end indices
   for (int i = start ~/ 2; i < (end != null ? end ~/ 2 : max ~/ 2); i++) {
-    // Pair specific images together
+    //pair specific images together
     cards.add(Cards(imagePaths: imagePaths[2 * i], id: i));
     cards.add(Cards(imagePaths: imagePaths[2 * i + 1], id: i));
   }
